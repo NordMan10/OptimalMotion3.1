@@ -47,6 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\DataRandomizer.cs" />
+    <Compile Include="Domain\Enums\AircraftTypes.cs" />
+    <Compile Include="Domain\Interval.cs" />
     <Compile Include="Domain\Table.cs" />
     <Compile Include="Domain\TableRow.cs" />
     <Compile Include="Interfaces\ITable.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OptimalMotion3._1.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,9 @@ namespace OptimalMotion3._1.Interfaces
 {
     public interface ITable
     {
-
+        void AddRow(TableRow tableData);
+        void RemoveRow(int id);
+        void UpdateRow(int id, TableRow newRow);
+        void Reset();
     }
 }
