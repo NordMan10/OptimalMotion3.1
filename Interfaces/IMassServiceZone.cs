@@ -2,7 +2,7 @@
 
 namespace OptimalMotion3._1.Interfaces
 {
-    public interface IMassServiceDevice
+    public interface IMassServiceZone
     {
         int Id { get; }
         Interval GetFreeInterval(Interval newInterval);

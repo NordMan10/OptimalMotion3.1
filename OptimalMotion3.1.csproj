@@ -48,6 +48,9 @@
   <ItemGroup>
     <Compile Include="Domain\DataRandomizer.cs" />
     <Compile Include="Domain\Enums\AircraftTypes.cs" />
+    <Compile Include="Domain\InputData.cs" />
+    <Compile Include="Domain\InputDataGenerator.cs" />
+    <Compile Include="Domain\Static\IMassServiceDeviceExtensions.cs" />
     <Compile Include="Domain\Interval.cs" />
     <Compile Include="Domain\Table.cs" />
     <Compile Include="Domain\TableRow.cs" />
@@ -58,14 +61,14 @@
     <Compile Include="Domain\TakingOffAircraft.cs" />
     <Compile Include="Domain\TakingOffAircraftIntervals.cs" />
     <Compile Include="Domain\TakingOffAircraftMoments.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+      <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Interfaces\IAircraft.cs" />
-    <Compile Include="Interfaces\IMassServiceDevice.cs" />
+    <Compile Include="Interfaces\IMassServiceZone.cs" />
     <Compile Include="Domain\Model.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
