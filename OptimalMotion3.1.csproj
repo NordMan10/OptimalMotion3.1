@@ -46,12 +46,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\DataRandomizer.cs" />
+    <Compile Include="Domain\Table.cs" />
+    <Compile Include="Domain\TableRow.cs" />
+    <Compile Include="Interfaces\ITable.cs" />
+    <Compile Include="Domain\PreliminaryStart.cs" />
+    <Compile Include="Domain\Runway.cs" />
+    <Compile Include="Domain\SpecialPlace.cs" />
+    <Compile Include="Domain\TakingOffAircraft.cs" />
+    <Compile Include="Domain\TakingOffAircraftIntervals.cs" />
+    <Compile Include="Domain\TakingOffAircraftMoments.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IAircraft.cs" />
+    <Compile Include="Interfaces\IMassServiceDevice.cs" />
+    <Compile Include="Domain\Model.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
