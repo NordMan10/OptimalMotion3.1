@@ -1,9 +1,11 @@
 ﻿using OptimalMotion3._1.Domain;
 using OptimalMotion3._1.Interfaces;
 using System;
+using System.Linq;
 using System.Drawing;
 using System.Windows.Forms;
 using OptimalMotion3._1.Domain.Static;
+using System.Collections.Generic;
 
 namespace OptimalMotion3._1
 {
@@ -12,30 +14,39 @@ namespace OptimalMotion3._1
         public MainForm()
         {
             DoubleBuffered = true;
+            WindowState = FormWindowState.Maximized;
 
             InitializeComponent();
 
-            table = GetTable();
-
             InitButtons();
 
-            topLayout = GetTopLayout();
-            mainLayout = GetMainLayout();
+            InitTopLayout();
+            InitMainLayout();
+
+            table = GetTable();
+
             Controls.Add(mainLayout);
 
-            WindowState = FormWindowState.Maximized;
-
-            model = new Model(ModellingParameters.RunwayCount, ModellingParameters.SpecialPlaceCount, table);
+            
         }
 
-        private readonly Model model;
+        private Model model;
+        
+        private readonly Form parametersForm = new Form();
         private readonly ITable table;
-        private readonly TableLayoutPanel mainLayout = new TableLayoutPanel();
-        private readonly TableLayoutPanel topLayout = new TableLayoutPanel();
+
+        private TableLayoutPanel mainLayout;
+        private TableLayoutPanel topLayout;
+        private TableLayoutPanel inputDataTableLayout;
+
+        private Dictionary<string, Tuple<Label, MaskedTextBox>> dataTableItems;
+        
         private readonly DataGridView tableDataGridView = new DataGridView();
 
 
-        public Button StartButton { get; private set; }
+        private Button StartButton { get; set; }
+        private Button ParametersButton { get; set; }
+        private Button ParametersFormOkButton { get; set; }
 
         private ITable GetTable()
         {
@@ -63,8 +74,10 @@ namespace OptimalMotion3._1
             }
         }
 
-        private TableLayoutPanel GetMainLayout()
+        private void InitMainLayout()
         {
+            mainLayout = new TableLayoutPanel();
+
             mainLayout.ColumnCount = 1;
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             mainLayout.Controls.Add(topLayout, 0, 0);
@@ -76,28 +89,144 @@ namespace OptimalMotion3._1
             mainLayout.Dock = DockStyle.Fill;
             mainLayout.TabIndex = 0;
 
-            return mainLayout;
         }
 
-        private TableLayoutPanel GetTopLayout()
+        private void InitTopLayout()
         {
+            topLayout = new TableLayoutPanel();
+            InitInputDataTableLayout();
+
             topLayout.ColumnCount = 4;
             topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35F));
             topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             topLayout.Controls.Add(StartButton, 0, 0);
+            topLayout.Controls.Add(ParametersButton, 1, 0);
             topLayout.Name = "topLayout";
             topLayout.RowCount = 1;
             topLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             topLayout.Dock = DockStyle.Fill;
+            topLayout.CellBorderStyle = TableLayoutPanelCellBorderStyle.Inset;
 
-            return topLayout;
+        }
+
+        private void InitInputDataTableLayout()
+        {
+            inputDataTableLayout = new TableLayoutPanel();
+
+            InitDataTableItems();
+
+            inputDataTableLayout.ColumnCount = 3;
+            inputDataTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            inputDataTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            inputDataTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            inputDataTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            inputDataTableLayout.Name = "inputDataTableLayout";
+
+            inputDataTableLayout.RowCount = 4;
+            inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
+            inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
+            inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            inputDataTableLayout.Dock = DockStyle.Fill;
+
+            AddInputsToControls();
+
+            inputDataTableLayout.Controls.Add(ParametersFormOkButton, 2, 3);
+
+            //inputDataTableLayout.CellBorderStyle = TableLayoutPanelCellBorderStyle.Inset;
+
+        }
+
+        private void AddInputsToControls()
+        {
+            for (var row = 1; row < inputDataTableLayout.RowCount; row += 2)
+            {
+                for (var column = 0; column < inputDataTableLayout.ColumnCount; column++)
+                {
+                    var itemIndex = column + (int)Math.Floor((double)row / 2) * inputDataTableLayout.ColumnCount;
+                    if (itemIndex >= dataTableItems.Count) break;
+
+                    inputDataTableLayout.Controls.Add(dataTableItems.Values.ToList()[itemIndex].Item1, column, row - 1);
+                    inputDataTableLayout.Controls.Add(dataTableItems.Values.ToList()[itemIndex].Item2, column, row);
+                }
+            }
+        }
+
+        private void InitDataTableItems()
+        {
+            var runwayCountInput = new MaskedTextBox() { Text = "2" };
+            runwayCountInput.TextChanged += RunwayCountInput_TextChanged;
+
+            var SPCount = new MaskedTextBox() { Text = "2" };
+            SPCount.TextChanged += (sender, e) =>
+            {
+                if (SPCount.Text != "")
+                {
+                    ModellingParameters.SpecialPlaceCount = int.Parse(SPCount.Text);
+                }
+            };
+
+            var processingTime = new MaskedTextBox() { Text = "240" };
+            processingTime.TextChanged += (sender, e) =>
+            {
+                if (processingTime.Text != "")
+                {
+                    TakingOffAircraftData.ProcessingTime = int.Parse(processingTime.Text);
+                }
+            };
+
+            var takingOffStep = new MaskedTextBox() { Text = "180" };
+            takingOffStep.TextChanged += (sender, e) =>
+            {
+                if (takingOffStep.Text != "")
+                {
+                    ModellingParameters.TakingOffMomentStep = int.Parse(takingOffStep.Text);
+                }
+            };
+
+            dataTableItems = new Dictionary<string, Tuple<Label, MaskedTextBox>>
+            {
+                {
+                    "runwayCount", 
+                    Tuple.Create(new Label() { Text = "Кол-во ВПП:" }, runwayCountInput)
+                },
+                {
+                    "SPCount",
+
+                    Tuple.Create(new Label() { Text = "Кол-во Спец. площадок:" }, SPCount) 
+                },
+                {
+                    "processingTime", 
+                    Tuple.Create(new Label() { Text = "Время обработки:" }, processingTime) 
+                },
+                {
+                    "takingOffStep", 
+                    Tuple.Create(new Label() { Text = "Интервал моментов взлета:" }, takingOffStep) 
+                },
+            };
+
+            foreach (var item in dataTableItems)
+            {
+                item.Value.Item1.AutoSize = true;
+                item.Value.Item1.Font = new Font("Roboto", 10f, FontStyle.Regular);
+            }
+        }
+
+        private void RunwayCountInput_TextChanged(object sender, EventArgs e)
+        {
+            if ((e.GetType().GetProperty("temp").GetValue(e).ToString() != "")
+            {
+                ModellingParameters.RunwayCount = int.Parse(runwayCountInput.Text);
+            }
         }
 
         private void InitButtons()
         {
             InitStartButton();
+            InitParametersButton();
+            InitParametersFormOkButton();
         }
 
         private void InitStartButton()
@@ -111,6 +240,58 @@ namespace OptimalMotion3._1
             StartButton.FlatStyle = FlatStyle.Flat;
 
             Controls.Add(StartButton);
+        }
+
+        private void InitParametersButton()
+        {
+            ParametersButton = new Button();
+            ParametersButton.Text = "Задать параметры";
+            ParametersButton.Click += ParametersButton_Click;
+            ParametersButton.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
+            //ParametersButton.Size = new Size(150, 40);
+            ParametersButton.AutoSize = true;
+            ParametersButton.BackColor = Color.White;
+            ParametersButton.FlatStyle = FlatStyle.Flat;
+
+            Controls.Add(StartButton);
+        }
+
+        private void InitParametersFormOkButton()
+        {
+            ParametersFormOkButton = new Button();
+            ParametersFormOkButton.Text = "Ok";
+            ParametersFormOkButton.Click += ParametersFormOkButton_Click; ;
+            ParametersFormOkButton.Font = new Font("Roboto", 14f, GraphicsUnit.Pixel);
+            ParametersButton.Size = new Size(50, 30);
+            //ParametersFormOkButton.AutoSize = true;
+            ParametersFormOkButton.BackColor = Color.White;
+            ParametersFormOkButton.FlatStyle = FlatStyle.Flat;
+
+            Controls.Add(StartButton);
+        }
+
+        private void ParametersFormOkButton_Click(object sender, EventArgs e)
+        {
+            foreach (var item in dataTableItems)
+            {
+                var input = item.Value.Item2;
+                if (input.Text != "")
+                {
+                    ModellingParameters.RunwayCount = int.Parse(input.Text);
+                }
+            }
+
+            model = new Model(
+                ModellingParameters.RunwayCount,
+                ModellingParameters.SpecialPlaceCount,
+                table);
+            parametersForm.Hide();
+        }
+
+        private void ParametersButton_Click(object sender, EventArgs e)
+        {
+            parametersForm.Show();
+            parametersForm.Controls.Add(inputDataTableLayout);
         }
 
         private void StartButtonOnClick(object sender, EventArgs e)

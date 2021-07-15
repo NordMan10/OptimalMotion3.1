@@ -47,7 +47,7 @@ namespace OptimalMotion3._1.Domain
         public TableRow GetOutputData()
         {
             var inputData = inputDataGenerator.GetInputData();
-            var takingOffAircraft = GetTakingOffAircraft(inputData);
+            var takingOffAircraft = aircraftGenerator.GetTakingOffAircraft(inputData, Enums.AircraftTypes.Medium);
             var thisRunway = runways[takingOffAircraft.RunwayId - 1];
             int startMoment;
 
@@ -105,14 +105,5 @@ namespace OptimalMotion3._1.Domain
                 specialPlaces.Add(i, specPlatform);
             }
         }
-
-        private TakingOffAircraft GetTakingOffAircraft(InputData inputData)
-        {
-            var specialPlaceId = DataRandomizer.GetRandomizedValue(ModellingParameters.StartIdValue, ModellingParameters.SpecialPlaceCount + 1);
-
-            return aircraftGenerator.GetTakingOffAircraft(inputData, Enums.AircraftTypes.Medium, specialPlaceId);
-        }
-
-
     }
 }

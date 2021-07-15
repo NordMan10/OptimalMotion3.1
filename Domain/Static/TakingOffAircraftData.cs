@@ -13,7 +13,7 @@ namespace OptimalMotion3._1.Domain.Static
         public static int MotionFromParkingToSP = 120;
         public static int MotionFromSPToPS = 120;
         public static int TakingOffInterval = 30;
-        public static int ProcessingTime = 240;
+        public static int ProcessingTime { get; set; } = 240;
 
     }
 }

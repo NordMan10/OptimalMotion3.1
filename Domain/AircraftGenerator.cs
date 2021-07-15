@@ -2,9 +2,6 @@
 using OptimalMotion3._1.Domain.Static;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OptimalMotion3._1.Domain
 {
@@ -34,7 +31,7 @@ namespace OptimalMotion3._1.Domain
             return _instance;
         }
 
-        public TakingOffAircraft GetTakingOffAircraft(InputData inputData, AircraftTypes type, int specialPlaceId)
+        public TakingOffAircraft GetTakingOffAircraft(InputData inputData, AircraftTypes type)
         {
             var id = idGenerator.GetUniqueAircraftId();
 
@@ -43,6 +40,8 @@ namespace OptimalMotion3._1.Domain
 
             var processingIsNeededVariants = new List<bool> { true, false };
             var processingIsNeeded = processingIsNeededVariants[random.Next(0, processingIsNeededVariants.Count)];
+
+            var specialPlaceId = DataRandomizer.GetRandomizedValue(ModellingParameters.StartIdValue, ModellingParameters.SpecialPlaceCount + 1);
 
             return new TakingOffAircraft(id, type, moments, intervals, processingIsNeeded, inputData.RunwayId, specialPlaceId);
         }
