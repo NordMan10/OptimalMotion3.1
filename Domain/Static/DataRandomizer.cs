@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OptimalMotion3._1.Domain
+namespace OptimalMotion3._1.Domain.Static
 {
     public static class DataRandomizer
     {
@@ -12,7 +12,7 @@ namespace OptimalMotion3._1.Domain
         /// <param name="maxValue"></param>
         /// <param name="minValue"></param>
         /// <returns></returns>
-        public static int GetRandomizedValue(int maxValue, int minValue)
+        public static int GetRandomizedValue(int minValue, int maxValue)
         {
             return random.Next(minValue, maxValue);
         }

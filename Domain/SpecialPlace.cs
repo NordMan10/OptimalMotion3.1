@@ -15,9 +15,9 @@ namespace OptimalMotion3._1.Domain
 
         private readonly Dictionary<int, Interval> ProcessingIntervals = new Dictionary<int, Interval>();
 
-        public void AddAircraftInterval(TakingOffAircraft aircraft)
+        public void AddAircraftInterval(int aircraftId, Interval freeInterval)
         {
-            IMassServiceDeviceExtensions.AddAircraftInterval(this, aircraft, ProcessingIntervals);
+            IMassServiceDeviceExtensions.AddAircraftInterval(this, aircraftId, freeInterval, ProcessingIntervals);
         }
 
         public Interval GetFreeInterval(Interval newInterval)
@@ -25,9 +25,9 @@ namespace OptimalMotion3._1.Domain
             return IMassServiceDeviceExtensions.GetFreeInterval(this, newInterval, ProcessingIntervals);
         }
 
-        public void RemoveAircraftInterval(TakingOffAircraft aircraft)
+        public void RemoveAircraftInterval(int aircraftId)
         {
-            IMassServiceDeviceExtensions.RemoveAircraftInterval(this, aircraft, ProcessingIntervals);
+            IMassServiceDeviceExtensions.RemoveAircraftInterval(this, aircraftId, ProcessingIntervals);
         }
     }
 }

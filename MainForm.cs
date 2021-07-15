@@ -1,14 +1,9 @@
 ﻿using OptimalMotion3._1.Domain;
 using OptimalMotion3._1.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using OptimalMotion3._1.Domain.Static;
 
 namespace OptimalMotion3._1
 {
@@ -30,7 +25,7 @@ namespace OptimalMotion3._1
 
             WindowState = FormWindowState.Maximized;
 
-            model = new Model(1, 1, table);
+            model = new Model(ModellingParameters.RunwayCount, ModellingParameters.SpecialPlaceCount, table);
         }
 
         private readonly Model model;
@@ -38,6 +33,7 @@ namespace OptimalMotion3._1
         private readonly TableLayoutPanel mainLayout = new TableLayoutPanel();
         private readonly TableLayoutPanel topLayout = new TableLayoutPanel();
         private readonly DataGridView tableDataGridView = new DataGridView();
+
 
         public Button StartButton { get; private set; }
 
@@ -119,7 +115,8 @@ namespace OptimalMotion3._1
 
         private void StartButtonOnClick(object sender, EventArgs e)
         {
-            //model.ChangeStage(ModelStages.Started);
+            model.InvokeAddTakingOffAircraft();
+
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)

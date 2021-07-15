@@ -3,10 +3,10 @@
 namespace OptimalMotion3._1.Interfaces
 {
     public interface IMassServiceZone
-    {
+    { 
         int Id { get; }
         Interval GetFreeInterval(Interval newInterval);
-        void AddAircraftInterval(TakingOffAircraft aircraft);
-        void RemoveAircraftInterval(TakingOffAircraft aircraft);
+        void AddAircraftInterval(int aircraftId, Interval freeInterval);
+        void RemoveAircraftInterval(int aircraftId);
     }
 }

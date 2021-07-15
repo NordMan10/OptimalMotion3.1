@@ -46,12 +46,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\DataRandomizer.cs" />
+    <Compile Include="Domain\AircraftGenerator.cs" />
+    <Compile Include="Domain\AircraftIdGenerator.cs" />
+    <Compile Include="Domain\Static\DataRandomizer.cs" />
     <Compile Include="Domain\Enums\AircraftTypes.cs" />
     <Compile Include="Domain\InputData.cs" />
     <Compile Include="Domain\InputDataGenerator.cs" />
     <Compile Include="Domain\Static\IMassServiceDeviceExtensions.cs" />
     <Compile Include="Domain\Interval.cs" />
+    <Compile Include="Domain\Static\ModellingParameters.cs" />
+    <Compile Include="Domain\Static\TakingOffAircraftData.cs" />
     <Compile Include="Domain\Table.cs" />
     <Compile Include="Domain\TableRow.cs" />
     <Compile Include="Interfaces\ITable.cs" />
@@ -72,6 +76,9 @@
     <Compile Include="Domain\Model.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

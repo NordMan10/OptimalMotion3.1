@@ -6,35 +6,32 @@ namespace OptimalMotion3._1.Domain.Static
 {
     public static class IMassServiceDeviceExtensions
     {
-        public static void AddAircraftInterval(this IMassServiceZone zone,  TakingOffAircraft aircraft, Dictionary<int, Interval> zoneIntervals)
+        public static void AddAircraftInterval(this IMassServiceZone zone, int aircraftId, Interval freeInterval, Dictionary<int, Interval> zoneIntervals)
         {
-            var firstOccupiedMoment = aircraft.Moments.PlannedTakingOff - aircraft.Intervals.TakingOff - aircraft.Intervals.MotionFromPSToES;
-            var secondOccupiedMoment = firstOccupiedMoment + aircraft.Intervals.PSDelay;
-            var occupiedInterval = new Interval(firstOccupiedMoment, secondOccupiedMoment);
-
-            if (CheckIntervalsIntersection(occupiedInterval, zoneIntervals))
+            if (CheckIntervalsIntersection(freeInterval, zoneIntervals))
                 throw new ArgumentException("Интервалы пересекаются! Передайте проверенный интервал");
 
-            zoneIntervals.Add(aircraft.Id, occupiedInterval);
+            zoneIntervals.Add(aircraftId, freeInterval);
         }
 
-        public static Interval GetFreeInterval(this IMassServiceZone zone, Interval newInterval, Dictionary<int, Interval> zoneIntervals)
+        public static Interval GetFreeInterval(this IMassServiceZone zone, Interval interval, Dictionary<int, Interval> zoneIntervals)
         {
-            var delay = 0;
+            var newInterval = new Interval(interval.FirstMoment, interval.LastMoment);
             foreach (var occupiedInterval in zoneIntervals.Values)
             {
                 if (newInterval.LastMoment >= occupiedInterval.FirstMoment && newInterval.FirstMoment <= occupiedInterval.LastMoment)
                 {
-                    delay = occupiedInterval.LastMoment - newInterval.FirstMoment;
+                    var delay = occupiedInterval.LastMoment - interval.FirstMoment;
+                    newInterval = new Interval(interval.FirstMoment + delay, interval.LastMoment + delay);
                 }
             }
 
-            return new Interval(newInterval.FirstMoment + delay, newInterval.LastMoment + delay);
+            return newInterval;
         }
 
-        public static void RemoveAircraftInterval(this IMassServiceZone zone, TakingOffAircraft aircraft, Dictionary<int, Interval> zoneIntervals)
+        public static void RemoveAircraftInterval(this IMassServiceZone zone, int aircraftId, Dictionary<int, Interval> zoneIntervals)
         {
-            zoneIntervals.Remove(aircraft.Id);
+            zoneIntervals.Remove(aircraftId);
         }
 
 

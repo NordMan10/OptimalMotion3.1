@@ -4,13 +4,15 @@ namespace OptimalMotion3._1.Domain
 {
     public class TableRow
     {
-        public TableRow(string aircraftId, string takingOffMoment, string planningTakingOffMoment, string actualTakingOffMoment, bool needProcessing)
+        public TableRow(string aircraftId, string actualTakingOffMoment, string plannedTakingOffMoment, bool needProcessing,
+            string runwayId, string specialPlaceId)
         {
             AircraftId = aircraftId;
-            PlannedTakingOffMoment = takingOffMoment;
-            PlannedTakingOffMoment = planningTakingOffMoment;
             ActualTakingOffMoment = actualTakingOffMoment;
+            PlannedTakingOffMoment = plannedTakingOffMoment;
             NeedProcessing = needProcessing;
+            RunwayId = runwayId;
+            SpecialPlaceId = specialPlaceId;
         }
 
         [DisplayName("Id ВС")]
@@ -24,5 +26,11 @@ namespace OptimalMotion3._1.Domain
 
         [DisplayName("Обработка")]
         public bool NeedProcessing { get; }
+
+        [DisplayName("Id ВПП")]
+        public string RunwayId { get; }
+
+        [DisplayName("Id Спец. площадки")]
+        public string SpecialPlaceId { get; }
     }
 }
