@@ -5,15 +5,12 @@ namespace OptimalMotion3._1.Domain
 {
     public class InputDataGenerator
     {
-        public InputDataGenerator(int initTakingOffMoment, int takingOffMomentStep)
+        public InputDataGenerator(int initTakingOffMoment)
         {
             currentTakingOffMoment = initTakingOffMoment;
-            momentStep = takingOffMomentStep;
         }
 
         private int currentTakingOffMoment;
-
-        private int momentStep;
 
         private Random random = new Random();
 
@@ -21,7 +18,7 @@ namespace OptimalMotion3._1.Domain
         {
             var runwayId = random.Next(ModellingParameters.StartIdValue, ModellingParameters.RunwayCount + 1);
             var takingOffMoment = currentTakingOffMoment;
-            currentTakingOffMoment += momentStep;
+            currentTakingOffMoment += ModellingParameters.TakingOffMomentStep;
 
             return new InputData(runwayId, takingOffMoment);
         }

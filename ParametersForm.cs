@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OptimalMotion3._1
@@ -15,6 +8,17 @@ namespace OptimalMotion3._1
         public ParametersForm()
         {
             InitializeComponent();
+
+            Width = 450;
+            Height = 180;
+
+            TopMost = true;
+            StartPosition = FormStartPosition.CenterScreen;
+        }
+
+        private void ParametersForm_Load(object sender, EventArgs e)
+        {
+            ControlBox = false;
         }
     }
 }

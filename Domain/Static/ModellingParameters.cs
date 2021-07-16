@@ -9,8 +9,8 @@ namespace OptimalMotion3._1.Domain.Static
 
         public static int StartIdValue = 1;
 
-        public static int RunwayCount { get; set; } = 3;
-        public static int SpecialPlaceCount { get; set; } = 2;
+        public static int RunwayCount { get; set; } = 10;
+        public static int SpecialPlaceCount { get; set; } = 20;
 
     }
 }

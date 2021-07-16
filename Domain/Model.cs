@@ -28,14 +28,20 @@ namespace OptimalMotion3._1.Domain
 
         private AircraftGenerator aircraftGenerator = AircraftGenerator.GetInstance(idGenerator);
 
-        private readonly InputDataGenerator inputDataGenerator = new InputDataGenerator(ModellingParameters.FirstTakingOffMoment, ModellingParameters.TakingOffMomentStep);
+        private readonly InputDataGenerator inputDataGenerator = new InputDataGenerator(ModellingParameters.FirstTakingOffMoment);
 
         public event Func<TableRow> AddTakingOffAircraft;
 
+
+        public void UpdateModel(int runwayCount, int specialPlaceCount)
+        {
+            UpdateRunways(runwayCount);
+            UpdateSpecialPlaces(specialPlaceCount);
+        }
+
         public void InvokeAddTakingOffAircraft()
         {
-            var tableRow =  AddTakingOffAircraft?.Invoke();
-
+            var tableRow = AddTakingOffAircraft?.Invoke();
             table.AddRow(tableRow);
         }
 
@@ -48,7 +54,7 @@ namespace OptimalMotion3._1.Domain
         {
             var inputData = inputDataGenerator.GetInputData();
             var takingOffAircraft = aircraftGenerator.GetTakingOffAircraft(inputData, Enums.AircraftTypes.Medium);
-            var thisRunway = runways[takingOffAircraft.RunwayId - 1];
+            var thisRunway = runways[takingOffAircraft.RunwayId];
             int startMoment;
 
             var takingOffInterval = new Interval(inputData.PlannedTakingOffMoment - takingOffAircraft.Intervals.TakingOff, inputData.PlannedTakingOffMoment);
@@ -90,7 +96,7 @@ namespace OptimalMotion3._1.Domain
 
         private void InitRunways(int runwayCount)
         {
-            for (var i = 0; i < runwayCount; i++)
+            for (var i = ModellingParameters.StartIdValue; i < runwayCount + ModellingParameters.StartIdValue; i++)
             {
                 var runway = new Runway(i);
                 runways.Add(i, runway);
@@ -99,10 +105,28 @@ namespace OptimalMotion3._1.Domain
 
         private void InitSpecialPlaces(int specPlatformCount)
         {
-            for (var i = 1; i < specPlatformCount + 1; i++)
+            for (var i = ModellingParameters.StartIdValue; i < specPlatformCount + ModellingParameters.StartIdValue; i++)
             {
-                var specPlatform = new SpecialPlace(i);
-                specialPlaces.Add(i, specPlatform);
+                var specialPlace = new SpecialPlace(i);
+                specialPlaces.Add(i, specialPlace);
+            }
+        }
+
+        private void UpdateRunways(int runwayCount)
+        {
+            for (var i = runways.Count; i < runwayCount; i++)
+            {
+                var runway = new Runway(i + ModellingParameters.StartIdValue);
+                runways.Add(i + ModellingParameters.StartIdValue, runway);
+            }
+        }
+
+        private void UpdateSpecialPlaces(int specialPlaceCount)
+        {
+            for (var i = specialPlaces.Count; i < specialPlaceCount; i++)
+            {
+                var specialPlace = new SpecialPlace(i + ModellingParameters.StartIdValue);
+                specialPlaces.Add(i + ModellingParameters.StartIdValue, specialPlace);
             }
         }
     }
