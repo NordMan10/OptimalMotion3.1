@@ -22,12 +22,12 @@ namespace OptimalMotion3._1.Domain.Static
         /// <summary>
         /// Количество ВПП
         /// </summary>
-        public static int RunwayCount { get; set; } = 10;
+        public static int RunwayCount { get; set; } = 2;
 
         /// <summary>
         /// Количество спец. площадок
         /// </summary>
-        public static int SpecialPlaceCount { get; set; } = 20;
+        public static int SpecialPlaceCount { get; set; } = 2;
 
     }
 }

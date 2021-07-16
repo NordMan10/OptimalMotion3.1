@@ -44,7 +44,7 @@ namespace OptimalMotion3._1.Domain
             var moments = new TakingOffAircraftMoments(inputData.PlannedTakingOffMoment);
             var intervals = GetTakingOffAircraftIntervals();
 
-            var processingIsNeededVariants = new List<bool> { true, false };
+            var processingIsNeededVariants = new List<bool> { true };
             var processingIsNeeded = processingIsNeededVariants[random.Next(0, processingIsNeededVariants.Count)];
 
             var specialPlaceId = DataRandomizer.GetRandomizedValue(ModellingParameters.StartIdValue, ModellingParameters.SpecialPlaceCount + 1);

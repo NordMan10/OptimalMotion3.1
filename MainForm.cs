@@ -164,7 +164,7 @@ namespace OptimalMotion3._1
 
         private void InitDataTableItems()
         {
-            var runwayCountInput = new MaskedTextBox() { Text = "3", TabIndex = 0 };
+            var runwayCountInput = new MaskedTextBox() { Text = "2", TabIndex = 0 };
             var SPCount = new MaskedTextBox() { Text = "2", TabIndex = 1 };
             var processingTime = new MaskedTextBox() { Text = "240", TabIndex = 2 };
             var takingOffStep = new MaskedTextBox() { Text = "180", TabIndex = 3 };
