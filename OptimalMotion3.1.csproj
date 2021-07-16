@@ -55,6 +55,7 @@
     <Compile Include="Domain\Static\IMassServiceDeviceExtensions.cs" />
     <Compile Include="Domain\Interval.cs" />
     <Compile Include="Domain\Static\ModellingParameters.cs" />
+    <Compile Include="Domain\Static\InputTakingOffMomemts.cs" />
     <Compile Include="Domain\Static\TakingOffAircraftData.cs" />
     <Compile Include="Domain\Table.cs" />
     <Compile Include="Domain\TableRow.cs" />
@@ -106,6 +107,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Text\Notes.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

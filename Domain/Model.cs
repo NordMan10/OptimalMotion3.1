@@ -50,6 +50,11 @@ namespace OptimalMotion3._1.Domain
             return GetOutputData();
         }
 
+        public List<int> GetActualTakingOffMoment(List<int> plannedTakingOffMoments)
+        {
+            return 5;
+        }
+
         public TableRow GetOutputData()
         {
             var inputData = inputDataGenerator.GetInputData();
@@ -88,9 +93,9 @@ namespace OptimalMotion3._1.Domain
 
             takingOffAircraft.Moments.Start = startMoment;
 
-            var newTakingOffMoment = takingOffAircraft.Moments.PlannedTakingOff + delay;
+            var actualTakingOffMoment = takingOffAircraft.Moments.PlannedTakingOff + delay;
 
-            return new TableRow(takingOffAircraft.Id.ToString(), newTakingOffMoment.ToString(), takingOffAircraft.Moments.PlannedTakingOff.ToString(), 
+            return new TableRow(takingOffAircraft.Id.ToString(), actualTakingOffMoment.ToString(), takingOffAircraft.Moments.PlannedTakingOff.ToString(), 
                 takingOffAircraft.ProcessingIsNeeded, takingOffAircraft.RunwayId.ToString(), takingOffAircraft.SpecialPlaceId.ToString());
         }
 

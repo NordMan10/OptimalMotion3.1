@@ -29,5 +29,9 @@ namespace OptimalMotion3._1.Domain.Static
         /// </summary>
         public static int SpecialPlaceCount { get; set; } = 2;
 
+        /// <summary>
+        ///  Резервное время прибытия
+        /// </summary>
+        public static int ArrivalReserveTime { get; set; } = 30;
     }
 }
