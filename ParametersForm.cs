@@ -14,6 +14,7 @@ namespace OptimalMotion3._1
 
             TopMost = true;
             StartPosition = FormStartPosition.CenterScreen;
+            
         }
 
         private void ParametersForm_Load(object sender, EventArgs e)

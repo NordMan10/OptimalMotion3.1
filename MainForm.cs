@@ -15,6 +15,7 @@ namespace OptimalMotion3._1
         {
             DoubleBuffered = true;
             WindowState = FormWindowState.Maximized;
+            
 
             InitializeComponent();
 
@@ -29,7 +30,6 @@ namespace OptimalMotion3._1
 
             InitParametersForm();
             parametersForm.Show();
-
         }
 
         private Model model;
@@ -93,7 +93,7 @@ namespace OptimalMotion3._1
             mainLayout.Controls.Add(tableDataGridView, 0, 1);
             mainLayout.Name = "mainLayout";
             mainLayout.RowCount = 2;
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 75F));
             mainLayout.Dock = DockStyle.Fill;
             mainLayout.TabIndex = 0;
@@ -164,10 +164,10 @@ namespace OptimalMotion3._1
 
         private void InitDataTableItems()
         {
-            var runwayCountInput = new MaskedTextBox() { Text = "3" };
-            var SPCount = new MaskedTextBox() { Text = "2" };
-            var processingTime = new MaskedTextBox() { Text = "240" };
-            var takingOffStep = new MaskedTextBox() { Text = "180" };
+            var runwayCountInput = new MaskedTextBox() { Text = "3", TabIndex = 0 };
+            var SPCount = new MaskedTextBox() { Text = "2", TabIndex = 1 };
+            var processingTime = new MaskedTextBox() { Text = "240", TabIndex = 2 };
+            var takingOffStep = new MaskedTextBox() { Text = "180", TabIndex = 3 };
 
             dataTableItems = new Dictionary<string, Tuple<Label, MaskedTextBox>>
             {
