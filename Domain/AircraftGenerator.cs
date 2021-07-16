@@ -31,12 +31,18 @@ namespace OptimalMotion3._1.Domain
             return _instance;
         }
 
+        /// <summary>
+        /// Возвращает экземпляр взлетающего ВС
+        /// </summary>
+        /// <param name="inputData">Экземпляр входных данных</param>
+        /// <param name="type">Тип ВС</param>
+        /// <returns></returns>
         public TakingOffAircraft GetTakingOffAircraft(InputData inputData, AircraftTypes type)
         {
             var id = idGenerator.GetUniqueAircraftId();
 
             var moments = new TakingOffAircraftMoments(inputData.PlannedTakingOffMoment);
-            var intervals = GetTakingOffAircraftCreationIntervals();
+            var intervals = GetTakingOffAircraftIntervals();
 
             var processingIsNeededVariants = new List<bool> { true, false };
             var processingIsNeeded = processingIsNeededVariants[random.Next(0, processingIsNeededVariants.Count)];
@@ -47,10 +53,10 @@ namespace OptimalMotion3._1.Domain
         }
 
         /// <summary>
-        /// Sets intervals, which aircraft should have if intervals will differs from each other depending on aircraft
+        /// Возвращает набор заданных интервалов
         /// </summary>
-        /// <returns>Intervals in seconds</returns>
-        private TakingOffAircraftIntervals GetTakingOffAircraftCreationIntervals()
+        /// <returns></returns>
+        private TakingOffAircraftIntervals GetTakingOffAircraftIntervals()
         {
             return new TakingOffAircraftIntervals(TakingOffAircraftData.MotionFromParkingToPS, TakingOffAircraftData.MotionFromPSToES, 
                 TakingOffAircraftData.TakingOffInterval, TakingOffAircraftData.MotionFromParkingToSP, TakingOffAircraftData.MotionFromSPToPS, 

@@ -15,7 +15,7 @@ namespace OptimalMotion3._1.Domain.Static
         public static int TakingOffMomentStep { get; set; } = 180;
 
         /// <summary>
-        /// Начальное значение Id для площадок массового обслуживания
+        /// Начальное значение Id для зон массового обслуживания
         /// </summary>
         public static int StartIdValue = 1;
 

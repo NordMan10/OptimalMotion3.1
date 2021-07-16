@@ -14,7 +14,14 @@ namespace OptimalMotion3._1.Domain
             PlannedTakingOffMoment = plannedTakingOffMoment;
         }
 
+        /// <summary>
+        /// Количество ВПП
+        /// </summary>
         public int RunwayId { get; }
+
+        /// <summary>
+        /// Плановый момент вылета
+        /// </summary>
         public int PlannedTakingOffMoment { get; }
     }
 }

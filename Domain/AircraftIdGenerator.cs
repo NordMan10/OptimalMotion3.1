@@ -32,11 +32,18 @@ namespace OptimalMotion3._1.Domain
             return instance;
         }
 
+        /// <summary>
+        /// Сбрасывает значение Id до значения, переданного при создании
+        /// </summary>
         public void Reset()
         {
             id = initIdValue;
         }
 
+        /// <summary>
+        /// Возвращает уникальный Id для ВС
+        /// </summary>
+        /// <returns></returns>
         public int GetUniqueAircraftId()
         {
             return id++;

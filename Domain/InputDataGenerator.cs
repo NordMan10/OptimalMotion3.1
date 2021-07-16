@@ -14,6 +14,10 @@ namespace OptimalMotion3._1.Domain
 
         private Random random = new Random();
 
+        /// <summary>
+        /// Возвращает набор входных данных
+        /// </summary>
+        /// <returns></returns>
         public InputData GetInputData()
         {
             var runwayId = random.Next(ModellingParameters.StartIdValue, ModellingParameters.RunwayCount + 1);
