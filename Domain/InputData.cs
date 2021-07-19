@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OptimalMotion3._1.Domain.Enums;
 
 namespace OptimalMotion3._1.Domain
 {
     public class InputData
     {
-        public InputData(int runwayId, int plannedTakingOffMoment)
+        public InputData(int runwayId, int plannedTakingOffMoment, AircraftTypes aircraftType)
         {
             RunwayId = runwayId;
             PlannedTakingOffMoment = plannedTakingOffMoment;
+            AircraftType = aircraftType;
         }
 
         /// <summary>
@@ -23,5 +20,10 @@ namespace OptimalMotion3._1.Domain
         /// Плановый момент вылета
         /// </summary>
         public int PlannedTakingOffMoment { get; }
+
+        /// <summary>
+        /// Тип ВС
+        /// </summary>
+        public AircraftTypes AircraftType { get; }
     }
 }

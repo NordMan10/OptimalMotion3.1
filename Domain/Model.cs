@@ -50,54 +50,100 @@ namespace OptimalMotion3._1.Domain
             return GetOutputData();
         }
 
-        public List<int> GetActualTakingOffMoment(List<int> plannedTakingOffMoments)
+        public List<int> GetActualTakingOffMoments(List<int> plannedTakingOffMoments)
         {
-            return 5;
+            var actualTakingOffMoments = new List<int>();
+
+            for (var i = 0; i < plannedTakingOffMoments.Count; i++)
+            {
+                var inputData = inputDataGenerator.GetInputData(plannedTakingOffMoments[i]);
+                var takingOffAircraft = aircraftGenerator.GetTakingOffAircraft(inputData);
+
+                var thisRunway = runways[takingOffAircraft.RunwayId];
+                int startMoment;
+
+                var takingOffInterval = new Interval(inputData.PlannedTakingOffMoment - takingOffAircraft.Intervals.TakingOff, inputData.PlannedTakingOffMoment);
+                var freeRunwayInterval = thisRunway.GetFreeInterval(takingOffInterval);
+
+                var delay = freeRunwayInterval.FirstMoment - takingOffInterval.FirstMoment;
+
+                thisRunway.AddAircraftInterval(takingOffAircraft.Id, freeRunwayInterval);
+
+                if (takingOffAircraft.ProcessingIsNeeded)
+                {
+                    var thisSpecialPlace = specialPlaces[takingOffAircraft.SpecialPlaceId];
+
+                    var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES -
+                        takingOffAircraft.Intervals.MotionFromSPToPS - takingOffAircraft.Intervals.Processing;
+
+                    var processingInterval = new Interval(SPArriveMoment, SPArriveMoment + takingOffAircraft.Intervals.Processing);
+                    var freeSPInterval = thisSpecialPlace.GetFreeInterval(processingInterval);
+
+                    delay += freeSPInterval.FirstMoment - processingInterval.FirstMoment;
+
+                    thisSpecialPlace.AddAircraftInterval(takingOffAircraft.Id, freeSPInterval);
+
+                    startMoment = SPArriveMoment - takingOffAircraft.Intervals.MotionFromParkingToSP + delay;
+                }
+                else
+                {
+                    startMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES - takingOffAircraft.Intervals.MotionFromParkingToPS +
+                        delay;
+                }
+
+                takingOffAircraft.Moments.Start = startMoment;
+
+                actualTakingOffMoments.Add(takingOffAircraft.Moments.PlannedTakingOff + delay);
+            }
+
+            return actualTakingOffMoments;
         }
 
-        public TableRow GetOutputData()
-        {
-            var inputData = inputDataGenerator.GetInputData();
-            var takingOffAircraft = aircraftGenerator.GetTakingOffAircraft(inputData, Enums.AircraftTypes.Medium);
-            var thisRunway = runways[takingOffAircraft.RunwayId];
-            int startMoment;
 
-            var takingOffInterval = new Interval(inputData.PlannedTakingOffMoment - takingOffAircraft.Intervals.TakingOff, inputData.PlannedTakingOffMoment);
-            var freeRunwayInterval = thisRunway.GetFreeInterval(takingOffInterval);
+
+        //public TableRow GetOutputData()
+        //{
+        //    var inputData = inputDataGenerator.GetInputData(1);
+        //    var takingOffAircraft = aircraftGenerator.GetTakingOffAircraft(inputData, Enums.AircraftTypes.Medium);
+        //    var thisRunway = runways[takingOffAircraft.RunwayId];
+        //    int startMoment;
+
+        //    var takingOffInterval = new Interval(inputData.PlannedTakingOffMoment - takingOffAircraft.Intervals.TakingOff, inputData.PlannedTakingOffMoment);
+        //    var freeRunwayInterval = thisRunway.GetFreeInterval(takingOffInterval);
             
-            var delay = freeRunwayInterval.FirstMoment - takingOffInterval.FirstMoment;
+        //    var delay = freeRunwayInterval.FirstMoment - takingOffInterval.FirstMoment;
 
-            thisRunway.AddAircraftInterval(takingOffAircraft.Id, freeRunwayInterval);
+        //    thisRunway.AddAircraftInterval(takingOffAircraft.Id, freeRunwayInterval);
 
-            if (takingOffAircraft.ProcessingIsNeeded)
-            {
-                var thisSpecialPlace = specialPlaces[takingOffAircraft.SpecialPlaceId];
+        //    if (takingOffAircraft.ProcessingIsNeeded)
+        //    {
+        //        var thisSpecialPlace = specialPlaces[takingOffAircraft.SpecialPlaceId];
 
-                var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES -
-                    takingOffAircraft.Intervals.MotionFromSPToPS - takingOffAircraft.Intervals.Processing;
+        //        var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES -
+        //            takingOffAircraft.Intervals.MotionFromSPToPS - takingOffAircraft.Intervals.Processing;
 
-                var processingInterval = new Interval(SPArriveMoment, SPArriveMoment + takingOffAircraft.Intervals.Processing);
-                var freeSPInterval = thisSpecialPlace.GetFreeInterval(processingInterval);
+        //        var processingInterval = new Interval(SPArriveMoment, SPArriveMoment + takingOffAircraft.Intervals.Processing);
+        //        var freeSPInterval = thisSpecialPlace.GetFreeInterval(processingInterval);
 
-                delay += freeSPInterval.FirstMoment - processingInterval.FirstMoment;
+        //        delay += freeSPInterval.FirstMoment - processingInterval.FirstMoment;
 
-                thisSpecialPlace.AddAircraftInterval(takingOffAircraft.Id, freeSPInterval);
+        //        thisSpecialPlace.AddAircraftInterval(takingOffAircraft.Id, freeSPInterval);
 
-                startMoment = SPArriveMoment - takingOffAircraft.Intervals.MotionFromParkingToSP + delay;
-            }
-            else
-            {
-                startMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES - takingOffAircraft.Intervals.MotionFromParkingToPS +
-                    delay;
-            }
+        //        startMoment = SPArriveMoment - takingOffAircraft.Intervals.MotionFromParkingToSP + delay;
+        //    }
+        //    else
+        //    {
+        //        startMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES - takingOffAircraft.Intervals.MotionFromParkingToPS +
+        //            delay;
+        //    }
 
-            takingOffAircraft.Moments.Start = startMoment;
+        //    takingOffAircraft.Moments.Start = startMoment;
 
-            var actualTakingOffMoment = takingOffAircraft.Moments.PlannedTakingOff + delay;
+        //    var actualTakingOffMoment = takingOffAircraft.Moments.PlannedTakingOff + delay;
 
-            return new TableRow(takingOffAircraft.Id.ToString(), actualTakingOffMoment.ToString(), takingOffAircraft.Moments.PlannedTakingOff.ToString(), 
-                takingOffAircraft.ProcessingIsNeeded, takingOffAircraft.RunwayId.ToString(), takingOffAircraft.SpecialPlaceId.ToString());
-        }
+        //    return new TableRow(takingOffAircraft.Id.ToString(), actualTakingOffMoment.ToString(), takingOffAircraft.Moments.PlannedTakingOff.ToString(), 
+        //        takingOffAircraft.ProcessingIsNeeded, takingOffAircraft.RunwayId.ToString(), takingOffAircraft.SpecialPlaceId.ToString());
+        //}
 
         private void InitRunways(int runwayCount)
         {

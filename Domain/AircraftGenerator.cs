@@ -37,7 +37,7 @@ namespace OptimalMotion3._1.Domain
         /// <param name="inputData">Экземпляр входных данных</param>
         /// <param name="type">Тип ВС</param>
         /// <returns></returns>
-        public TakingOffAircraft GetTakingOffAircraft(InputData inputData, AircraftTypes type)
+        public TakingOffAircraft GetTakingOffAircraft(InputData inputData)
         {
             var id = idGenerator.GetUniqueAircraftId();
 
@@ -49,7 +49,7 @@ namespace OptimalMotion3._1.Domain
 
             var specialPlaceId = DataRandomizer.GetRandomizedValue(ModellingParameters.StartIdValue, ModellingParameters.SpecialPlaceCount + 1);
 
-            return new TakingOffAircraft(id, type, moments, intervals, processingIsNeeded, inputData.RunwayId, specialPlaceId);
+            return new TakingOffAircraft(id, inputData.AircraftType, moments, intervals, processingIsNeeded, inputData.RunwayId, specialPlaceId);
         }
 
         /// <summary>
