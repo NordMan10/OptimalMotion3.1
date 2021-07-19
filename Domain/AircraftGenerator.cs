@@ -31,6 +31,7 @@ namespace OptimalMotion3._1.Domain
             return _instance;
         }
 
+
         /// <summary>
         /// Возвращает экземпляр взлетающего ВС
         /// </summary>
