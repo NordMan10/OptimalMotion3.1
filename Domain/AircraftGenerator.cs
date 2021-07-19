@@ -31,9 +31,7 @@ namespace OptimalMotion3._1.Domain
             return _instance;
         }
 
-<<<<<<< HEAD
-        public TakingOffAircraft GetTakingOffAircraft(InputData inputData, AircraftTypes type)
-=======
+
         /// <summary>
         /// Возвращает экземпляр взлетающего ВС
         /// </summary>
@@ -41,7 +39,6 @@ namespace OptimalMotion3._1.Domain
         /// <param name="type">Тип ВС</param>
         /// <returns></returns>
         public TakingOffAircraft GetTakingOffAircraft(InputData inputData)
->>>>>>> fbc4839 (GetActualTakingOffMoments method is realized)
         {
             var id = idGenerator.GetUniqueAircraftId();
 
