@@ -29,5 +29,10 @@ namespace OptimalMotion3._1.Domain
         {
             IMassServiceDeviceExtensions.RemoveAircraftInterval(this, aircraftId, ProcessingIntervals);
         }
+
+        public void Reset()
+        {
+            ProcessingIntervals.Clear();
+        }
     }
 }

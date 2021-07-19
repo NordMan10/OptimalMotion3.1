@@ -49,7 +49,7 @@ namespace OptimalMotion3._1
         private Button StartButton { get; set; }
         private Button ParametersButton { get; set; }
         private Button ParametersFormOkButton { get; set; }
-        private Button ResetTableButton { get; set; }
+        private Button ResetButton { get; set; }
 
         private ITable GetTable()
         {
@@ -112,7 +112,7 @@ namespace OptimalMotion3._1
             topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             topLayout.Controls.Add(StartButton, 0, 0);
             topLayout.Controls.Add(ParametersButton, 1, 0);
-            topLayout.Controls.Add(ResetTableButton, 2, 0);
+            topLayout.Controls.Add(ResetButton, 2, 0);
             topLayout.Name = "topLayout";
             topLayout.RowCount = 1;
             topLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -183,10 +183,10 @@ namespace OptimalMotion3._1
                     "processingTime", 
                     Tuple.Create(new Label() { Text = "Время обработки:" }, processingTime) 
                 },
-                {
-                    "takingOffStep", 
-                    Tuple.Create(new Label() { Text = "Интервал моментов взлета:" }, takingOffStep) 
-                },
+                //{
+                //    "takingOffStep", 
+                //    Tuple.Create(new Label() { Text = "Интервал моментов взлета:" }, takingOffStep) 
+                //},
             };
 
             foreach (var item in dataTableItems)
@@ -217,12 +217,12 @@ namespace OptimalMotion3._1
                 TakingOffAircraftData.ProcessingTime = int.Parse(input.Text);
         }
 
-        private void HandleTakingOffStepInputValue(object sender, EventArgs e)
-        {
-            var input = dataTableItems["takingOffStep"].Item2;
-            if (input.Text != "")
-                ModellingParameters.TakingOffMomentStep = int.Parse(input.Text);
-        }
+        //private void HandleTakingOffStepInputValue(object sender, EventArgs e)
+        //{
+        //    var input = dataTableItems["takingOffStep"].Item2;
+        //    if (input.Text != "")
+        //        ModellingParameters.TakingOffMomentStep = int.Parse(input.Text);
+        //}
 
         private void InitButtons()
         {
@@ -259,14 +259,14 @@ namespace OptimalMotion3._1
 
         private void InitResetButton()
         {
-            ResetTableButton = new Button();
-            ResetTableButton.Text = "Очистить таблицу";
-            ResetTableButton.Click += ResetTableButton_Click; ;
-            ResetTableButton.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
+            ResetButton = new Button();
+            ResetButton.Text = "Очистить таблицу";
+            ResetButton.Click += ResetButton_Click; ;
+            ResetButton.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
             //ResetTableButton.Size = new Size(150, 40);
-            ResetTableButton.AutoSize = true;
-            ResetTableButton.BackColor = Color.White;
-            ResetTableButton.FlatStyle = FlatStyle.Flat;
+            ResetButton.AutoSize = true;
+            ResetButton.BackColor = Color.White;
+            ResetButton.FlatStyle = FlatStyle.Flat;
         }
 
         private void InitParametersFormOkButton()
@@ -283,7 +283,7 @@ namespace OptimalMotion3._1
             ParametersFormOkButton.Click += HandleRunwayCountInputValue;
             ParametersFormOkButton.Click += HandleSPCountInputValue;
             ParametersFormOkButton.Click += HandleProcessingTimeInputValue;
-            ParametersFormOkButton.Click += HandleTakingOffStepInputValue;
+            //ParametersFormOkButton.Click += HandleTakingOffStepInputValue;
 
             ParametersFormOkButton.Click += ParametersFormOkButton_Click;
         }
@@ -314,9 +314,16 @@ namespace OptimalMotion3._1
             model.InvokeAddTakingOffAircraft();
         }
 
-        private void ResetTableButton_Click(object sender, EventArgs e)
+        private void ResetButton_Click(object sender, EventArgs e)
         {
             table.Reset();
+            model.ResetLastPlannedTakingOffMomentIndex();
+
+            foreach (var runway in model.Runways.Values)
+                runway.Reset();
+
+            foreach (var specialPlace in model.SpecialPlaces.Values)
+                specialPlace.Reset();
         }
     }
 }

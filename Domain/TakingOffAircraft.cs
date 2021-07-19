@@ -31,6 +31,7 @@ namespace OptimalMotion3._1.Domain
         public TakingOffAircraftIntervals Intervals { get; }
 
         public bool ProcessingIsNeeded { get; }
+        public bool IsReserve { get; set; }
 
         public int RunwayId { get; }
 

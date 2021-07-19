@@ -20,8 +20,8 @@ namespace OptimalMotion3._1.Domain
             AddTakingOffAircrafts += AddTakingOffAircraftsHandler;
         }
 
-        private Dictionary<int, Runway> runways = new Dictionary<int, Runway>();
-        private Dictionary<int, SpecialPlace> specialPlaces = new Dictionary<int, SpecialPlace>();
+        public Dictionary<int, Runway> Runways { get; } = new Dictionary<int, Runway>();
+        public Dictionary<int, SpecialPlace> SpecialPlaces { get; } = new Dictionary<int, SpecialPlace>();
         private readonly ITable table;
 
         private static AircraftIdGenerator idGenerator = AircraftIdGenerator.GetInstance(ModellingParameters.StartIdValue);
@@ -30,7 +30,9 @@ namespace OptimalMotion3._1.Domain
 
         private readonly InputDataGenerator inputDataGenerator = new InputDataGenerator(ModellingParameters.FirstTakingOffMoment);
 
-        public event Func<TableRow> AddTakingOffAircrafts;
+        public event Func<List<TableRow>> AddTakingOffAircrafts;
+
+        private int lastPlannedTakingOffMomentIndex = -1;
 
 
         public void UpdateModel(int runwayCount, int specialPlaceCount)
@@ -41,14 +43,19 @@ namespace OptimalMotion3._1.Domain
 
         public void InvokeAddTakingOffAircraft()
         {
-            var tableRow = AddTakingOffAircrafts?.Invoke();
-            table.AddRow(tableRow);
+            var tableRows = AddTakingOffAircrafts?.Invoke();
+
+            foreach(var row in tableRows)
+                table.AddRow(row);
         }
 
-        private TableRow AddTakingOffAircraftsHandler()
+        private List<TableRow> AddTakingOffAircraftsHandler()
         {
-            return GetOutputData();
+            var plannedAircraftTakingOffMoments = InputTakingOffMomemts.PlannedMoments.ToList();
+            return GetOutputData(plannedAircraftTakingOffMoments);
         }
+
+
 
         /// <summary>
         /// Возвращает список ВС с рассчитанными фактическим моментом взлета и моментом старта, на основе переданного списка 
@@ -56,7 +63,7 @@ namespace OptimalMotion3._1.Domain
         /// </summary>
         /// <param name="plannedTakingOffMoments"></param>
         /// <returns></returns>
-        public List<TakingOffAircraft> GetConfiguredTakingOffAircrafts(List<int> plannedTakingOffMoments)
+        private List<TakingOffAircraft> GetConfiguredTakingOffAircrafts(List<int> plannedTakingOffMoments)
         {
             var takingOffAircrafts= new List<TakingOffAircraft>();
 
@@ -112,7 +119,7 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         private int GetRunwayStartDelay(TakingOffAircraft takingOffAircraft, Interval takingOffInterval)
         {
-            var thisRunway = runways[takingOffAircraft.RunwayId];
+            var thisRunway = Runways[takingOffAircraft.RunwayId];
 
             // Получаем свободный интервал от ВПП
             var freeRunwayInterval = thisRunway.GetFreeInterval(takingOffInterval);
@@ -131,7 +138,7 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         private int GetSpecialPlaceStartDelay(TakingOffAircraft takingOffAircraft, Interval takingOffInterval)
         {
-            var thisSpecialPlace = specialPlaces[takingOffAircraft.SpecialPlaceId];
+            var thisSpecialPlace = SpecialPlaces[takingOffAircraft.SpecialPlaceId];
 
             var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES -
                 takingOffAircraft.Intervals.MotionFromSPToPS - takingOffAircraft.Intervals.Processing;
@@ -144,7 +151,7 @@ namespace OptimalMotion3._1.Domain
             return freeSPInterval.FirstMoment - processingInterval.FirstMoment;
         }
 
-        public void GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> takingOffAircrafts)
+        private List<TakingOffAircraft> GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> takingOffAircrafts)
         {
             // Получаем список фактических моментов взлета
             var actualTakingOffMoments = takingOffAircrafts.Select(a => a.Moments.ActualTakingOff).ToList();
@@ -164,13 +171,18 @@ namespace OptimalMotion3._1.Domain
                 var reserveAircraftStartMoment = GetReserveAircraftStartMoment(verifiedPermittedMoment, i, takingOffAircrafts);
 
                 takingOffAircrafts[i].Moments.Start = currentAircraftStartMoment;
+                takingOffAircrafts[i].Moments.PermittedTakingOffMoment = verifiedPermittedMoment;
 
                 if (reserveAircraftStartMoment != null)
                 {
                     takingOffAircrafts[i + 1].Moments.Start = (int)reserveAircraftStartMoment;
+                    takingOffAircrafts[i + 1].Moments.PermittedTakingOffMoment = (int)verifiedPermittedMoment;
+                    takingOffAircrafts[i + 1].IsReserve = true;
                     i++;
                 }
             }
+
+            return takingOffAircrafts;
         }
 
         /// <summary>
@@ -209,12 +221,11 @@ namespace OptimalMotion3._1.Domain
 
             if (actualMomentIndex < actualTakingOffMoments.Count - 1)
             {
-                // Берем фактический и разрешенный моменты;
-                var actualMoment = actualTakingOffMoments[actualMomentIndex];
+                // Берем фактический момент для резервного ВС;
                 var reserveAircraftActualMoment = actualTakingOffMoments[actualMomentIndex + 1];
 
                 // Проверяем, возможно ли назначить запасной ВС
-                if (permittedMoment >= actualMoment + ModellingParameters.ArrivalReserveTime)
+                if (permittedMoment >= reserveAircraftActualMoment + ModellingParameters.ArrivalReserveTime)
                 {
                     // Если возможно, то рассчитываем момент старта для следующего ВС с учетом запаса по времени
                     var startDelay = permittedMoment - reserveAircraftActualMoment - ModellingParameters.ArrivalReserveTime;
@@ -230,56 +241,32 @@ namespace OptimalMotion3._1.Domain
         }
 
 
-        //public TableRow GetOutputData()
-        //{
-        //    var inputData = inputDataGenerator.GetInputData(1);
-        //    var takingOffAircraft = aircraftGenerator.GetTakingOffAircraft(inputData, Enums.AircraftTypes.Medium);
-        //    var thisRunway = runways[takingOffAircraft.RunwayId];
-        //    int startMoment;
+        private List<TableRow> GetOutputData(List<int> plannedTakingOffMoments)
+        {
+            var tableRows = new List<TableRow>();
 
-        //    var takingOffInterval = new Interval(inputData.PlannedTakingOffMoment - takingOffAircraft.Intervals.TakingOff, inputData.PlannedTakingOffMoment);
-        //    var freeRunwayInterval = thisRunway.GetFreeInterval(takingOffInterval);
-            
-        //    var delay = freeRunwayInterval.FirstMoment - takingOffInterval.FirstMoment;
+            var rawPlannedTakingOffMoments = plannedTakingOffMoments.Skip(lastPlannedTakingOffMomentIndex + 1).ToList();
+            lastPlannedTakingOffMomentIndex += rawPlannedTakingOffMoments.Count;
 
-        //    thisRunway.AddAircraftInterval(takingOffAircraft.Id, freeRunwayInterval);
+            var configuredTakingOffAircrafts = GetConfiguredTakingOffAircrafts(rawPlannedTakingOffMoments);
+            var aircraftsWithReserve = GetReconfiguredAircraftsWithReserve(configuredTakingOffAircrafts);
 
-        //    if (takingOffAircraft.ProcessingIsNeeded)
-        //    {
-        //        var thisSpecialPlace = specialPlaces[takingOffAircraft.SpecialPlaceId];
+            foreach(var aircraft in aircraftsWithReserve)
+            {
+                tableRows.Add(new TableRow(aircraft.Id.ToString(), aircraft.Moments.Start.ToString(), aircraft.Moments.PlannedTakingOff.ToString(),
+                    aircraft.Moments.ActualTakingOff.ToString(), aircraft.Moments.PermittedTakingOffMoment.ToString(),
+                    aircraft.ProcessingIsNeeded, aircraft.IsReserve, aircraft.RunwayId.ToString(), aircraft.SpecialPlaceId.ToString()));
+            }
 
-        //        var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES -
-        //            takingOffAircraft.Intervals.MotionFromSPToPS - takingOffAircraft.Intervals.Processing;
-
-        //        var processingInterval = new Interval(SPArriveMoment, SPArriveMoment + takingOffAircraft.Intervals.Processing);
-        //        var freeSPInterval = thisSpecialPlace.GetFreeInterval(processingInterval);
-
-        //        delay += freeSPInterval.FirstMoment - processingInterval.FirstMoment;
-
-        //        thisSpecialPlace.AddAircraftInterval(takingOffAircraft.Id, freeSPInterval);
-
-        //        startMoment = SPArriveMoment - takingOffAircraft.Intervals.MotionFromParkingToSP + delay;
-        //    }
-        //    else
-        //    {
-        //        startMoment = takingOffInterval.FirstMoment - takingOffAircraft.Intervals.MotionFromPSToES - takingOffAircraft.Intervals.MotionFromParkingToPS +
-        //            delay;
-        //    }
-
-        //    takingOffAircraft.Moments.Start = startMoment;
-
-        //    var actualTakingOffMoment = takingOffAircraft.Moments.PlannedTakingOff + delay;
-
-        //    return new TableRow(takingOffAircraft.Id.ToString(), actualTakingOffMoment.ToString(), takingOffAircraft.Moments.PlannedTakingOff.ToString(), 
-        //        takingOffAircraft.ProcessingIsNeeded, takingOffAircraft.RunwayId.ToString(), takingOffAircraft.SpecialPlaceId.ToString());
-        //}
+            return tableRows;
+        }
 
         private void InitRunways(int runwayCount)
         {
             for (var i = ModellingParameters.StartIdValue; i < runwayCount + ModellingParameters.StartIdValue; i++)
             {
                 var runway = new Runway(i);
-                runways.Add(i, runway);
+                Runways.Add(i, runway);
             }
         }
 
@@ -288,26 +275,31 @@ namespace OptimalMotion3._1.Domain
             for (var i = ModellingParameters.StartIdValue; i < specPlatformCount + ModellingParameters.StartIdValue; i++)
             {
                 var specialPlace = new SpecialPlace(i);
-                specialPlaces.Add(i, specialPlace);
+                SpecialPlaces.Add(i, specialPlace);
             }
         }
 
         private void UpdateRunways(int runwayCount)
         {
-            for (var i = runways.Count; i < runwayCount; i++)
+            for (var i = Runways.Count; i < runwayCount; i++)
             {
                 var runway = new Runway(i + ModellingParameters.StartIdValue);
-                runways.Add(i + ModellingParameters.StartIdValue, runway);
+                Runways.Add(i + ModellingParameters.StartIdValue, runway);
             }
         }
 
         private void UpdateSpecialPlaces(int specialPlaceCount)
         {
-            for (var i = specialPlaces.Count; i < specialPlaceCount; i++)
+            for (var i = SpecialPlaces.Count; i < specialPlaceCount; i++)
             {
                 var specialPlace = new SpecialPlace(i + ModellingParameters.StartIdValue);
-                specialPlaces.Add(i + ModellingParameters.StartIdValue, specialPlace);
+                SpecialPlaces.Add(i + ModellingParameters.StartIdValue, specialPlace);
             }
+        }
+
+        public void ResetLastPlannedTakingOffMomentIndex()
+        {
+            lastPlannedTakingOffMomentIndex = -1;
         }
     }
 }
