@@ -14,7 +14,7 @@ namespace OptimalMotion3._1.Domain
         /// </summary>
         public int PlannedTakingOff { get; }
 
-        public int TakingOff { get; }
+        public int ActualTakingOff { get; set; }
         public int Start { get; set; }
     }
 }
