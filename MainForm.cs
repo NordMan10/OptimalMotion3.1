@@ -50,6 +50,12 @@ namespace OptimalMotion3._1
         private Button ParametersButton { get; set; }
         private Button ParametersFormOkButton { get; set; }
         private Button ResetButton { get; set; }
+        private Button AddDepurtureButton { get; set; }
+
+        private void InitModel(int runwayCount, int specialPlaceCount)
+        {
+            model = new Model(runwayCount, specialPlaceCount, table);
+        }
 
         private ITable GetTable()
         {
@@ -59,22 +65,6 @@ namespace OptimalMotion3._1
             tableDataGridView.ColumnHeadersHeight = 30;
 
             return new Table(tableDataGridView);
-        }
-
-        private void TableDataGridViewOnCellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            for (var i = 0; i < tableDataGridView.Columns.Count - 1; i++)
-            {
-                tableDataGridView.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            }
-        }
-
-        private void TableDataGridView_DataSourceChanged(object sender, EventArgs e)
-        {
-            for (var i = 0; i < tableDataGridView.Columns.Count - 1; i++)
-            {
-                tableDataGridView.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            }
         }
 
         private void InitParametersForm()
@@ -113,6 +103,7 @@ namespace OptimalMotion3._1
             topLayout.Controls.Add(StartButton, 0, 0);
             topLayout.Controls.Add(ParametersButton, 1, 0);
             topLayout.Controls.Add(ResetButton, 2, 0);
+            topLayout.Controls.Add(AddDepurtureButton, 3, 0);
             topLayout.Name = "topLayout";
             topLayout.RowCount = 1;
             topLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -181,7 +172,7 @@ namespace OptimalMotion3._1
                 },
                 {
                     "processingTime", 
-                    Tuple.Create(new Label() { Text = "Время обработки:" }, processingTime) 
+                    Tuple.Create(new Label() { Text = "Среднее время обработки:" }, processingTime) 
                 },
                 //{
                 //    "takingOffStep", 
@@ -230,6 +221,7 @@ namespace OptimalMotion3._1
             InitParametersButton();
             InitParametersFormOkButton();
             InitResetButton();
+            InitAddDepurtureButton();
         }
 
         private void InitStartButton()
@@ -288,10 +280,43 @@ namespace OptimalMotion3._1
             ParametersFormOkButton.Click += ParametersFormOkButton_Click;
         }
 
-        private void InitModel(int runwayCount, int specialPlaceCount)
+        private void InitAddDepurtureButton()
         {
-            model = new Model(runwayCount, specialPlaceCount, table);
+            AddDepurtureButton = new Button();
+            AddDepurtureButton.Text = "Добавить вылет";
+
+            AddDepurtureButton.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
+            //ParametersButton.Size = new Size(50, 40);
+            AddDepurtureButton.AutoSize = true;
+            AddDepurtureButton.BackColor = Color.White;
+            AddDepurtureButton.FlatStyle = FlatStyle.Flat;
+
+            AddDepurtureButton.Click += AddDepurtureButton_Click;
+            AddDepurtureButton.Click += StartButtonOnClick;
         }
+
+        private void AddDepurtureButton_Click(object sender, EventArgs e)
+        {
+            int plannedMoment;
+            do
+            {
+                plannedMoment = DataRandomizer.GetRandomizedValue(
+                InputTakingOffMoments.PlannedMoments.Last() + InputTakingOffMoments.PlannedMomentsStep, 10, 30);
+            }
+            while (plannedMoment <= InputTakingOffMoments.PlannedMoments.Last());
+
+            int permittedMoment;
+            do
+            {
+                permittedMoment = DataRandomizer.GetRandomizedValue(
+                InputTakingOffMoments.PermittedMoments.Last() + InputTakingOffMoments.PermittedMomentsStep, 10, 30);
+            }
+            while (permittedMoment <= InputTakingOffMoments.PlannedMoments.Last());
+
+            InputTakingOffMoments.AddTakingOffMoments(plannedMoment, permittedMoment);
+        }
+
+        
 
         private void ParametersFormOkButton_Click(object sender, EventArgs e)
         {
@@ -318,6 +343,7 @@ namespace OptimalMotion3._1
         {
             table.Reset();
             model.ResetLastPlannedTakingOffMomentIndex();
+            model.ResetLastPermittedMomentIndex();
 
             foreach (var runway in model.Runways.Values)
                 runway.Reset();

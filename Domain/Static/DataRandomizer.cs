@@ -21,13 +21,15 @@ namespace OptimalMotion3._1.Domain.Static
 
         public static int GetRandomizedValue(int value, int dispersion, int step)
         {
+            if (dispersion == 0 || step == 0)
+                return value;
             var minValue = value - (value * (double)dispersion / 100);
             var maxValue = value + (value * (double)dispersion / 100);
 
             var possibleValues = new List<int>();
 
             var possibleValue = minValue;
-            while ((int)possibleValue < maxValue)
+            while ((int)possibleValue <= maxValue)
             {
                 possibleValues.Add((int)possibleValue);
                 possibleValue += step;

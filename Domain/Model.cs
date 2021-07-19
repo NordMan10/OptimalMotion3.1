@@ -33,6 +33,7 @@ namespace OptimalMotion3._1.Domain
         public event Func<List<TableRow>> AddTakingOffAircrafts;
 
         private int lastPlannedTakingOffMomentIndex = -1;
+        private int lastPermittedMomentIndex = -1;
 
 
         public void UpdateModel(int runwayCount, int specialPlaceCount)
@@ -51,7 +52,7 @@ namespace OptimalMotion3._1.Domain
 
         private List<TableRow> AddTakingOffAircraftsHandler()
         {
-            var plannedAircraftTakingOffMoments = InputTakingOffMomemts.PlannedMoments.ToList();
+            var plannedAircraftTakingOffMoments = InputTakingOffMoments.PlannedMoments.ToList();
             return GetOutputData(plannedAircraftTakingOffMoments);
         }
 
@@ -161,7 +162,12 @@ namespace OptimalMotion3._1.Domain
                 var actualMoment = actualTakingOffMoments[i];
                 var nearestPermittedMoment = GetNearestPermittedMoment(actualMoment);
                 if (nearestPermittedMoment == null)
-                    throw new ArgumentException("Для данного ВС не удалось найти разрешенный момент");
+                {
+                    takingOffAircrafts[i].Moments.Start = -1;
+                    takingOffAircrafts[i].Moments.PermittedTakingOffMoment = -1;
+                    continue;
+                }
+                    //throw new ArgumentException("Для данного ВС не удалось найти разрешенный момент");
 
                 var verifiedPermittedMoment = (int)nearestPermittedMoment;
 
@@ -194,14 +200,18 @@ namespace OptimalMotion3._1.Domain
         private int? GetNearestPermittedMoment(int actualMoment)
         {
             // Упорядочиваем разрешенные моменты
-            var permittedMoments = InputTakingOffMomemts.PermittedMoments.OrderBy(m => m).ToList();
+            var orderedPermittedMoments = InputTakingOffMoments.PermittedMoments.OrderBy(m => m).ToList();
+            var permittedMoments = orderedPermittedMoments.Skip(lastPermittedMomentIndex + 1).ToList();
 
             // Проверяем каждый разрешенный момент
             foreach (var permittedMoment in permittedMoments)
             {
                 // Если разрешенный момент больше или равен фактического + резервное время прибытия => возвращаем его
                 if (permittedMoment >= actualMoment + ModellingParameters.ArrivalReserveTime)
+                {
+                    lastPermittedMomentIndex = orderedPermittedMoments.IndexOf(permittedMoment);
                     return permittedMoment;
+                }
             }
 
             return null;
@@ -253,8 +263,16 @@ namespace OptimalMotion3._1.Domain
 
             foreach(var aircraft in aircraftsWithReserve)
             {
-                tableRows.Add(new TableRow(aircraft.Id.ToString(), aircraft.Moments.Start.ToString(), aircraft.Moments.PlannedTakingOff.ToString(),
-                    aircraft.Moments.ActualTakingOff.ToString(), aircraft.Moments.PermittedTakingOffMoment.ToString(),
+                var aircraftTotalMotionTime = aircraft.Intervals.TakingOff + aircraft.Intervals.MotionFromPSToES;
+                if (aircraft.ProcessingIsNeeded)
+                    aircraftTotalMotionTime += aircraft.Intervals.MotionFromSPToPS + aircraft.Intervals.MotionFromParkingToSP;
+                else
+                    aircraftTotalMotionTime += aircraft.Intervals.MotionFromParkingToPS;
+
+                tableRows.Add(new TableRow(aircraft.Id.ToString(), aircraft.Moments.PlannedTakingOff.ToString(),
+                    aircraft.Moments.ActualTakingOff.ToString(), 
+                    aircraft.Moments.PermittedTakingOffMoment != -1 ? aircraft.Moments.PermittedTakingOffMoment.ToString() : "Не найден",
+                    aircraft.Moments.Start.ToString(), aircraftTotalMotionTime.ToString(), aircraft.Intervals.Processing.ToString(), 
                     aircraft.ProcessingIsNeeded, aircraft.IsReserve, aircraft.RunwayId.ToString(), aircraft.SpecialPlaceId.ToString()));
             }
 
@@ -301,5 +319,17 @@ namespace OptimalMotion3._1.Domain
         {
             lastPlannedTakingOffMomentIndex = -1;
         }
+
+        public void ResetLastPermittedMomentIndex()
+        {
+            lastPermittedMomentIndex = -1;
+        }
+
+        //public void ResetInputMoments()
+        //{
+        //    var baseCount = 10;
+        //    InputTakingOffMoments.PlannedMoments.RemoveRange(baseCount, InputTakingOffMoments.PlannedMoments.Count - baseCount);
+        //    InputTakingOffMoments.PermittedMoments.RemoveRange(baseCount, InputTakingOffMoments.PermittedMoments.Count - baseCount);
+        //}
     }
 }

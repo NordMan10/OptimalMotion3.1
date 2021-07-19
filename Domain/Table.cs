@@ -30,7 +30,7 @@ namespace OptimalMotion3._1.Domain
                     graphicBase.Columns[property.Name].HeaderText = propDisplayName;
                 }
 
-                graphicBase.Columns[property.Name].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                graphicBase.Columns[property.Name].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             }
         }
 

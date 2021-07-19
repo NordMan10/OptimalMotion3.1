@@ -55,7 +55,7 @@
     <Compile Include="Domain\Static\IMassServiceDeviceExtensions.cs" />
     <Compile Include="Domain\Interval.cs" />
     <Compile Include="Domain\Static\ModellingParameters.cs" />
-    <Compile Include="Domain\Static\InputTakingOffMomemts.cs" />
+    <Compile Include="Domain\Static\InputTakingOffMoments.cs" />
     <Compile Include="Domain\Static\TakingOffAircraftData.cs" />
     <Compile Include="Domain\Table.cs" />
     <Compile Include="Domain\TableRow.cs" />
