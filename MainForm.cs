@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using OptimalMotion3._1.Domain.Static;
 using System.Collections.Generic;
+using System.Reflection;
+using System.ComponentModel;
 
 namespace OptimalMotion3._1
 {
@@ -19,12 +21,12 @@ namespace OptimalMotion3._1
 
             InitializeComponent();
 
+            InitTable();
+
             InitButtons();
 
             InitTopLayout();
             InitMainLayout();
-
-            table = GetTable();
 
             Controls.Add(mainLayout);
 
@@ -35,15 +37,15 @@ namespace OptimalMotion3._1
         private Model model;
 
         private Form parametersForm;
-        private readonly ITable table;
+        private ITable table;
 
         private TableLayoutPanel mainLayout;
         private TableLayoutPanel topLayout;
         private TableLayoutPanel inputDataTableLayout;
 
         private Dictionary<string, Tuple<Label, MaskedTextBox>> dataTableItems;
-        
-        private readonly DataGridView tableDataGridView = new DataGridView();
+
+        private DataGridView tableDataGridView;
 
 
         private Button StartButton { get; set; }
@@ -57,14 +59,40 @@ namespace OptimalMotion3._1
             model = new Model(runwayCount, specialPlaceCount, table);
         }
 
-        private ITable GetTable()
+        private void InitTable()
         {
+            tableDataGridView = new DataGridView();
+
             tableDataGridView.Dock = DockStyle.Fill;
             tableDataGridView.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
             tableDataGridView.DefaultCellStyle.Font = new Font("Roboto", 14F, GraphicsUnit.Pixel);
             tableDataGridView.ColumnHeadersHeight = 30;
 
-            return new Table(tableDataGridView);
+            tableDataGridView.DataBindingComplete += GraphicBaseOnDataBindingComplete;
+            //tableDataGridView.ColumnHeaderMouseClick += TableDataGridView_ColumnHeaderMouseClick;
+
+            table = new Table(tableDataGridView);
+        }
+
+        //private void TableDataGridView_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        //{
+        //    tableDataGridView.Sort(tableDataGridView.Columns[e.ColumnIndex], ListSortDirection.Ascending);
+        //}
+
+        private void GraphicBaseOnDataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            foreach (var property in typeof(TableRow).GetProperties())
+            {
+                var displayNameAttribute = property.GetCustomAttribute(typeof(DisplayNameAttribute));
+                if (displayNameAttribute != null)
+                {
+                    var propDisplayName = (displayNameAttribute as DisplayNameAttribute).DisplayName;
+                    tableDataGridView.Columns[property.Name].HeaderText = propDisplayName;
+                }
+
+                tableDataGridView.Columns[property.Name].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                
+            }
         }
 
         private void InitParametersForm()

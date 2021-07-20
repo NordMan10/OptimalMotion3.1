@@ -1,5 +1,7 @@
 ﻿
 
+using System.Collections.Generic;
+
 namespace OptimalMotion3._1.Domain.Static
 {
     public static class ModellingParameters
@@ -33,5 +35,17 @@ namespace OptimalMotion3._1.Domain.Static
         ///  Резервное время прибытия
         /// </summary>
         public static int ArrivalReserveTime { get; set; } = 30;
+
+
+        public static Dictionary<int, int> ReserveAircraftCount { get; } = new Dictionary<int, int>
+        {
+            { int.MaxValue, 0 },
+            { 300, 1 },
+            { 240, 2 },
+            { 180, 3 },
+            { 120, 4 },
+            { 10, 5 },
+            { 0, 6 },
+        };
     }
 }

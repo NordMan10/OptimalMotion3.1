@@ -10,7 +10,6 @@ namespace OptimalMotion3._1.Domain
         public Table(DataGridView graphicBase)
         {
             this.graphicBase = graphicBase;
-            this.graphicBase.DataBindingComplete += GraphicBaseOnDataBindingComplete;
             data = new BindingList<TableRow>();
 
             this.graphicBase.DataSource = data;
@@ -18,21 +17,6 @@ namespace OptimalMotion3._1.Domain
 
         private readonly DataGridView graphicBase;
         private readonly BindingList<TableRow> data;
-
-        private void GraphicBaseOnDataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            foreach (var property in typeof(TableRow).GetProperties())
-            {
-                var displayNameAttribute = property.GetCustomAttribute(typeof(DisplayNameAttribute));
-                if (displayNameAttribute != null)
-                {
-                    var propDisplayName = (displayNameAttribute as DisplayNameAttribute).DisplayName;
-                    graphicBase.Columns[property.Name].HeaderText = propDisplayName;
-                }
-
-                graphicBase.Columns[property.Name].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            }
-        }
 
         /// <summary>
         /// Добавление строки: (ИНТЕРФЕЙС) (И.1)

@@ -63,7 +63,7 @@ namespace OptimalMotion3._1.Domain
 
 
         /// <summary>
-        /// Возвращает список ВС с рассчитанными фактическим моментом взлета и моментом старта, на основе переданного списка 
+        /// Возвращает список ВС с рассчитанными возможным моментом взлета и моментом старта, на основе переданного списка 
         /// запланированных моментов вылета (моменты по расписанию)
         /// </summary>
         /// <param name="plannedTakingOffMoments"></param>
@@ -107,8 +107,8 @@ namespace OptimalMotion3._1.Domain
 
                 // Задаем рассчитанный момент старта текущему ВС
                 takingOffAircraft.Moments.Start = startMoment;
-                // Рассчитываем и задаем фактический момент взлета
-                takingOffAircraft.Moments.ActualTakingOff = takingOffAircraft.Moments.PlannedTakingOff + startDelay;
+                // Рассчитываем и задаем возможный момент взлета
+                takingOffAircraft.Moments.PossibleTakingOff = takingOffAircraft.Moments.PlannedTakingOff + startDelay;
 
                 takingOffAircrafts.Add(takingOffAircraft);
             }
@@ -159,12 +159,12 @@ namespace OptimalMotion3._1.Domain
         private List<TakingOffAircraft> GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> takingOffAircrafts)
         {
             // Получаем список фактических моментов взлета
-            var actualTakingOffMoments = takingOffAircrafts.Select(a => a.Moments.ActualTakingOff).ToList();
+            var possibleTakingOffMoments = takingOffAircrafts.Select(a => a.Moments.PossibleTakingOff).OrderBy(i => i).ToList();
 
-            for (var i = 0; i < actualTakingOffMoments.Count; i++)
+            for (var i = 0; i < possibleTakingOffMoments.Count; i++)
             {
-                var actualMoment = actualTakingOffMoments[i];
-                var nearestPermittedMoment = GetNearestPermittedMoment(actualMoment);
+                var possibleMoment = possibleTakingOffMoments[i];
+                var nearestPermittedMoment = GetNearestPermittedMoment(possibleMoment);
                 if (nearestPermittedMoment == null)
                 {
                     takingOffAircrafts[i].Moments.Start = -1;
@@ -175,43 +175,45 @@ namespace OptimalMotion3._1.Domain
 
                 var verifiedPermittedMoment = (int)nearestPermittedMoment;
 
-                var startDelay = verifiedPermittedMoment - actualMoment - ModellingParameters.ArrivalReserveTime;
+                var startDelay = verifiedPermittedMoment - possibleMoment;
                 var currentAircraftStartMoment = takingOffAircrafts[i].Moments.Start + startDelay;
 
-                var reserveAircraftStartMoment = GetReserveAircraftStartMoment(verifiedPermittedMoment, i, takingOffAircrafts);
+                var reserveAircraftStartMoments = GetReserveAircraftStartMoments(verifiedPermittedMoment, i, takingOffAircrafts);
 
                 takingOffAircrafts[i].Moments.Start = currentAircraftStartMoment;
                 takingOffAircrafts[i].Moments.PermittedTakingOffMoment = verifiedPermittedMoment;
 
-                if (reserveAircraftStartMoment != null)
+                for (var j = 1; j <= reserveAircraftStartMoments.Count; j++)
                 {
-                    takingOffAircrafts[i + 1].Moments.Start = (int)reserveAircraftStartMoment;
-                    takingOffAircrafts[i + 1].Moments.PermittedTakingOffMoment = (int)verifiedPermittedMoment;
-                    takingOffAircrafts[i + 1].IsReserve = true;
-                    i++;
+                    takingOffAircrafts[i + j].Moments.Start = reserveAircraftStartMoments[j - 1];
+                    takingOffAircrafts[i + j].Moments.PermittedTakingOffMoment = verifiedPermittedMoment;
+                    takingOffAircrafts[i + j].IsReserve = true;
                 }
+
+                i += reserveAircraftStartMoments.Count;
             }
 
             return takingOffAircrafts;
         }
 
         /// <summary>
-        /// Возвращаем ближайший разрешенный момент для переданного фактического момента, если его возможно установить. 
+        /// Возвращаем ближайший разрешенный момент для переданного возможного момента, если его возможно установить. 
         /// Если невозможно, возвращает null
         /// </summary>
-        /// <param name="actualMoment"></param>
+        /// <param name="possibleMoment"></param>
         /// <returns></returns>
-        private int? GetNearestPermittedMoment(int actualMoment)
+        private int? GetNearestPermittedMoment(int possibleMoment)
         {
             // Упорядочиваем разрешенные моменты
             var orderedPermittedMoments = InputTakingOffMoments.PermittedMoments.OrderBy(m => m).ToList();
+            // Выбираем только те, что еще не были использованы
             var permittedMoments = orderedPermittedMoments.Skip(lastPermittedMomentIndex + 1).ToList();
 
             // Проверяем каждый разрешенный момент
             foreach (var permittedMoment in permittedMoments)
             {
-                // Если разрешенный момент больше или равен фактического + резервное время прибытия => возвращаем его
-                if (permittedMoment >= actualMoment + ModellingParameters.ArrivalReserveTime)
+                // Если разрешенный момент больше или равен возможному + резервное время прибытия => возвращаем его
+                if (permittedMoment >= possibleMoment + ModellingParameters.ArrivalReserveTime)
                 {
                     lastPermittedMomentIndex = orderedPermittedMoments.IndexOf(permittedMoment);
                     return permittedMoment;
@@ -225,33 +227,75 @@ namespace OptimalMotion3._1.Domain
         /// Возвращает момент старта для резервного ВС, если его возможно установить. Если невозможно, возвращает null
         /// </summary>
         /// <param name="permittedMoment"></param>
-        /// <param name="actualMomentIndex"></param>
+        /// <param name="possibleMomentIndex"></param>
         /// <param name="takingOffAircrafts"></param>
         /// <returns></returns>
-        private int? GetReserveAircraftStartMoment(int permittedMoment, int actualMomentIndex, List<TakingOffAircraft> takingOffAircrafts)
+        private List<int> GetReserveAircraftStartMoments(int permittedMoment, int possibleMomentIndex, List<TakingOffAircraft> takingOffAircrafts)
         {
-            // Получаем список фактический моментов взлета
-            var actualTakingOffMoments = takingOffAircrafts.Select(a => a.Moments.ActualTakingOff).ToList();
+            var reserveStartMoments = new List<int>();
 
-            if (actualMomentIndex < actualTakingOffMoments.Count - 1)
+            // Получаем список возможных моментов взлета
+            var possibleTakingOffMoments = takingOffAircrafts.Select(a => a.Moments.PossibleTakingOff).OrderBy(i => i).ToList();
+
+            // Проверяем, есть ли еще возможные моменты
+            if (possibleMomentIndex < possibleTakingOffMoments.Count - 1)
             {
-                // Берем фактический момент для резервного ВС;
-                var reserveAircraftActualMoment = actualTakingOffMoments[actualMomentIndex + 1];
+                // Определяем необходимое количество резервных ВС
+                var reserveAircraftCount = GetReserveAircraftCount(permittedMoment, possibleMomentIndex, possibleTakingOffMoments);
 
-                // Проверяем, возможно ли назначить запасной ВС
-                if (permittedMoment >= reserveAircraftActualMoment + ModellingParameters.ArrivalReserveTime)
+                for (var i = 1; i <= reserveAircraftCount; i++)
                 {
-                    // Если возможно, то рассчитываем момент старта для следующего ВС с учетом запаса по времени
-                    var startDelay = permittedMoment - reserveAircraftActualMoment - ModellingParameters.ArrivalReserveTime;
-                    var reserveAircraftStartMoment = takingOffAircrafts[actualMomentIndex + 1].Moments.Start + startDelay;
+                    // Проверяем, есть ли еще возможные моменты
+                    if (possibleMomentIndex + i < possibleTakingOffMoments.Count - 1)
+                    {
+                        // Берем возможный момент для резервного ВС;
+                        var reserveAircraftPossibleMoment = possibleTakingOffMoments[possibleMomentIndex + i];
 
-                    // Возвращаем момент старта
-                    return reserveAircraftStartMoment;
+                        // Рассчитываем задержку для момента старта резервного ВС
+                        var startDelay = permittedMoment - reserveAircraftPossibleMoment;
+                        // Задаем момент старта для резервного ВС
+                        var reserveAircraftStartMoment = takingOffAircrafts[possibleMomentIndex + i].Moments.Start + startDelay;
+
+                        // Добавляем момент старта
+                        reserveStartMoments.Add(reserveAircraftStartMoment);
+                    }
                 }
             }
+            
+            // Возаращаем либо пустой список, либо заполненный старовыми моментами
+            return reserveStartMoments;
+        }
 
-            // Если невозможно назначить запасной ВС, то возвращаем null
-            return null;
+        private int GetReserveAircraftCount(int permittedMoment, int possibleMomentIndex, List<int> possibleTakingOffMoments)
+        {
+            var reserveAircraftCount = 0;
+
+            var index = 1;
+            while (possibleMomentIndex + index < possibleTakingOffMoments.Count - 1 && 
+                permittedMoment >= possibleTakingOffMoments[possibleMomentIndex + index] + ModellingParameters.ArrivalReserveTime)
+            {
+                reserveAircraftCount++;
+                if (reserveAircraftCount > 1)
+                {
+                    var t = 1;
+                }
+                index++;
+            }
+
+            int timeToLastTakeOffMoment;
+            int permittedTime;
+            do
+            {
+                timeToLastTakeOffMoment = possibleTakingOffMoments[possibleMomentIndex + reserveAircraftCount] - possibleTakingOffMoments[possibleMomentIndex];
+                permittedTime = ModellingParameters.ReserveAircraftCount.
+                        Where(item => reserveAircraftCount <= item.Value).OrderBy(i => i.Value).First().Key;
+
+                if (timeToLastTakeOffMoment > permittedTime)
+                    reserveAircraftCount--;
+            }
+            while (timeToLastTakeOffMoment > permittedTime);
+
+            return reserveAircraftCount;
         }
 
 
@@ -265,22 +309,30 @@ namespace OptimalMotion3._1.Domain
             var configuredTakingOffAircrafts = GetConfiguredTakingOffAircrafts(rawPlannedTakingOffMoments);
             var aircraftsWithReserve = GetReconfiguredAircraftsWithReserve(configuredTakingOffAircrafts);
 
-            foreach(var aircraft in aircraftsWithReserve)
+            var aircraftsOrderedByPermittedMoments = aircraftsWithReserve.OrderBy(a => a.Moments.PermittedTakingOffMoment).ToList();
+            foreach(var aircraft in aircraftsOrderedByPermittedMoments)
             {
-                var aircraftTotalMotionTime = aircraft.Intervals.TakingOff + aircraft.Intervals.MotionFromPSToES;
-                if (aircraft.ProcessingIsNeeded)
-                    aircraftTotalMotionTime += aircraft.Intervals.MotionFromSPToPS + aircraft.Intervals.MotionFromParkingToSP;
-                else
-                    aircraftTotalMotionTime += aircraft.Intervals.MotionFromParkingToPS;
-
-                tableRows.Add(new TableRow(aircraft.Id.ToString(), aircraft.Moments.PlannedTakingOff.ToString(),
-                    aircraft.Moments.ActualTakingOff.ToString(), 
-                    aircraft.Moments.PermittedTakingOffMoment != -1 ? aircraft.Moments.PermittedTakingOffMoment.ToString() : "Не найден",
-                    aircraft.Moments.Start.ToString(), aircraftTotalMotionTime.ToString(), aircraft.Intervals.Processing.ToString(), 
-                    aircraft.ProcessingIsNeeded, aircraft.IsReserve, aircraft.RunwayId.ToString(), aircraft.SpecialPlaceId.ToString()));
+                tableRows.Add(GetTableRow(aircraft));
             }
 
             return tableRows;
+        }
+
+        private TableRow GetTableRow(TakingOffAircraft aircraft)
+        {
+            var aircraftTotalMotionTime = aircraft.Intervals.TakingOff + aircraft.Intervals.MotionFromPSToES;
+            if (aircraft.ProcessingIsNeeded)
+                aircraftTotalMotionTime += aircraft.Intervals.MotionFromSPToPS + aircraft.Intervals.MotionFromParkingToSP;
+            else
+                aircraftTotalMotionTime += aircraft.Intervals.MotionFromParkingToPS;
+
+            var permittedMoment = aircraft.Moments.PermittedTakingOffMoment != -1 ? aircraft.Moments.PermittedTakingOffMoment.ToString() : "Не найден";
+            var processingTime = aircraft.ProcessingIsNeeded ? aircraft.Intervals.Processing.ToString() : "-";
+            var specialPlaceId = aircraft.ProcessingIsNeeded ? aircraft.SpecialPlaceId.ToString() : "-";
+
+            return new TableRow(aircraft.Id.ToString(), aircraft.Moments.PlannedTakingOff.ToString(), aircraft.Moments.PossibleTakingOff.ToString(),
+                    permittedMoment, aircraft.Moments.Start.ToString(), aircraftTotalMotionTime.ToString(), processingTime,
+                    aircraft.ProcessingIsNeeded, aircraft.IsReserve, aircraft.RunwayId.ToString(), specialPlaceId);
         }
 
         private void InitRunways(int runwayCount)
