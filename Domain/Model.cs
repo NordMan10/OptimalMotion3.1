@@ -35,23 +35,27 @@ namespace OptimalMotion3._1.Domain
         private int lastPlannedTakingOffMomentIndex = -1;
         private int lastPermittedMomentIndex = -1;
 
-
-        public void UpdateModel(int runwayCount, int specialPlaceCount)
+        
+        /// <summary>
+        /// Вызывает обработчик события добавления взлетающих ВС. Добавляет выходные данные в таблицу
+        /// </summary>
+        public void InvokeAddTakingOffAircrafts()
         {
-            UpdateRunways(runwayCount);
-            UpdateSpecialPlaces(specialPlaceCount);
-        }
-
-        public void InvokeAddTakingOffAircraft()
-        {
+            // Вызываем обработчик и получаем данные для заполнения таблицы
             var tableRows = AddTakingOffAircrafts?.Invoke();
 
+            // Заполняем таблицу
             foreach(var row in tableRows)
                 table.AddRow(row);
         }
 
+        /// <summary>
+        /// Обработчик события добавления взлетающих ВС
+        /// </summary>
+        /// <returns></returns>
         private List<TableRow> AddTakingOffAircraftsHandler()
         {
+            // Получаем копию списка плановых моментов
             var plannedAircraftTakingOffMoments = InputTakingOffMoments.PlannedMoments.ToList();
             return GetOutputData(plannedAircraftTakingOffMoments);
         }
@@ -295,6 +299,12 @@ namespace OptimalMotion3._1.Domain
                 var specialPlace = new SpecialPlace(i);
                 SpecialPlaces.Add(i, specialPlace);
             }
+        }
+
+        public void UpdateModel(int runwayCount, int specialPlaceCount)
+        {
+            UpdateRunways(runwayCount);
+            UpdateSpecialPlaces(specialPlaceCount);
         }
 
         private void UpdateRunways(int runwayCount)

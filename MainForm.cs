@@ -336,7 +336,7 @@ namespace OptimalMotion3._1
 
         private void StartButtonOnClick(object sender, EventArgs e)
         {
-            model.InvokeAddTakingOffAircraft();
+            model.InvokeAddTakingOffAircrafts();
         }
 
         private void ResetButton_Click(object sender, EventArgs e)
