@@ -6,7 +6,7 @@ namespace OptimalMotion3._1.Domain
     {
         public TableRow(string aircraftId, string plannedTakingOffMoment, string possibleTakingOffMoment, 
             string permittedTakingOffMoment, string startMoment, string totalMotionTime, string processingTime, bool 
-            needProcessing, string prioriry, bool isReserved, string runwayId, string specialPlaceId)
+            needProcessing, string prioriry, bool isReserved, string PSWaitingTime, string runwayId, string specialPlaceId)
         {
             AircraftId = aircraftId;
             PossibleTakingOffMoment = possibleTakingOffMoment;
@@ -18,6 +18,7 @@ namespace OptimalMotion3._1.Domain
             NeedProcessing = needProcessing;
             AircraftPriority = prioriry;
             IsReserved = isReserved;
+            this.PSWaitingTime = PSWaitingTime;
             RunwayId = runwayId;
             SpecialPlaceId = specialPlaceId;
         }
@@ -51,6 +52,9 @@ namespace OptimalMotion3._1.Domain
 
         [DisplayName("Резерв")]
         public bool IsReserved { get; }
+
+        [DisplayName("Ожидание на ПРДВ")]
+        public string PSWaitingTime { get; }
 
         [DisplayName("Id ВПП")]
         public string RunwayId { get; }
