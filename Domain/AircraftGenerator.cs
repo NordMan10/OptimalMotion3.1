@@ -50,7 +50,7 @@ namespace OptimalMotion3._1.Domain
 
             var specialPlaceId = DataRandomizer.GetRandomizedValue(ModellingParameters.StartIdValue, ModellingParameters.SpecialPlaceCount + 1);
 
-            return new TakingOffAircraft(id, inputData.AircraftType, moments, intervals, processingIsNeeded, inputData.RunwayId, specialPlaceId);
+            return new TakingOffAircraft(id, inputData.AircraftType, inputData.Priority, moments, intervals, processingIsNeeded, inputData.RunwayId, specialPlaceId);
         }
 
         /// <summary>

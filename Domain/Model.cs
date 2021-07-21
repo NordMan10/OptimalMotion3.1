@@ -28,7 +28,7 @@ namespace OptimalMotion3._1.Domain
 
         private AircraftGenerator aircraftGenerator = AircraftGenerator.GetInstance(idGenerator);
 
-        private readonly InputDataGenerator inputDataGenerator = new InputDataGenerator(ModellingParameters.FirstTakingOffMoment);
+        private readonly InputDataGenerator inputDataGenerator = new InputDataGenerator();
 
         public event Func<List<TableRow>> AddTakingOffAircrafts;
 

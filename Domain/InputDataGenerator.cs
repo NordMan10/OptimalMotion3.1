@@ -6,10 +6,7 @@ namespace OptimalMotion3._1.Domain
 {
     public class InputDataGenerator
     {
-        public InputDataGenerator(int initTakingOffMoment)
-        {
-
-        }
+        public InputDataGenerator() { }
 
         private Random random = new Random();
 
