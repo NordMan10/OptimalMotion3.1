@@ -63,19 +63,19 @@ namespace OptimalMotion3._1.Domain
 
 
         /// <summary>
-        /// Возвращает список ВС с рассчитанными возможным моментом взлета и моментом старта, на основе переданного списка 
-        /// запланированных моментов вылета (моменты по расписанию)
+        /// Возвращает список ВС с рассчитанными возможным моментом взлета и моментом старта и упорядоченный по возможным моментам
         /// </summary>
         /// <param name="plannedTakingOffMoments"></param>
         /// <returns></returns>
         private List<TakingOffAircraft> GetConfiguredTakingOffAircrafts(List<int> plannedTakingOffMoments)
         {
             var takingOffAircrafts= new List<TakingOffAircraft>();
+            var orderedPlannedTakingOffMoments = plannedTakingOffMoments.OrderBy(m => m).ToList();
 
-            for (var i = 0; i < plannedTakingOffMoments.Count; i++)
+            for (var i = 0; i < orderedPlannedTakingOffMoments.Count; i++)
             {
                 // Генерируем входные данные для нового ВС
-                var inputData = inputDataGenerator.GetInputData(plannedTakingOffMoments[i]);
+                var inputData = inputDataGenerator.GetInputData(orderedPlannedTakingOffMoments[i]);
                 // Создаем ВС
                 var takingOffAircraft = aircraftGenerator.GetTakingOffAircraft(inputData);
                 int startMoment;
@@ -113,7 +113,8 @@ namespace OptimalMotion3._1.Domain
                 takingOffAircrafts.Add(takingOffAircraft);
             }
 
-            return takingOffAircrafts;
+            var orderedTakingOffAircrafts = takingOffAircrafts.OrderBy(a => a.Moments.PossibleTakingOff).ToList();
+            return orderedTakingOffAircrafts;
         }
 
         /// <summary>
@@ -236,6 +237,7 @@ namespace OptimalMotion3._1.Domain
 
             // Получаем список возможных моментов взлета
             var possibleTakingOffMoments = takingOffAircrafts.Select(a => a.Moments.PossibleTakingOff).OrderBy(i => i).ToList();
+            var orderedTakingOffAircrafts = takingOffAircrafts.OrderBy(a => a.Moments.PossibleTakingOff).ToList();
 
             // Проверяем, есть ли еще возможные моменты
             if (possibleMomentIndex < possibleTakingOffMoments.Count - 1)
@@ -254,7 +256,7 @@ namespace OptimalMotion3._1.Domain
                         // Рассчитываем задержку для момента старта резервного ВС
                         var startDelay = permittedMoment - reserveAircraftPossibleMoment;
                         // Задаем момент старта для резервного ВС
-                        var reserveAircraftStartMoment = takingOffAircrafts[possibleMomentIndex + i].Moments.Start + startDelay;
+                        var reserveAircraftStartMoment = orderedTakingOffAircrafts[possibleMomentIndex + i].Moments.Start + startDelay;
 
                         // Добавляем момент старта
                         reserveStartMoments.Add(reserveAircraftStartMoment);
@@ -286,6 +288,13 @@ namespace OptimalMotion3._1.Domain
             int permittedTime;
             do
             {
+                if (possibleTakingOffMoments.Contains(1370) && reserveAircraftCount > 1)
+                {
+                    var t = 2;
+                }
+
+
+
                 timeToLastTakeOffMoment = possibleTakingOffMoments[possibleMomentIndex + reserveAircraftCount] - possibleTakingOffMoments[possibleMomentIndex];
                 permittedTime = ModellingParameters.ReserveAircraftCount.
                         Where(item => reserveAircraftCount <= item.Value).OrderBy(i => i.Value).First().Key;
