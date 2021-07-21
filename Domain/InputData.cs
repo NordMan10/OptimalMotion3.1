@@ -4,7 +4,7 @@ namespace OptimalMotion3._1.Domain
 {
     public class InputData
     {
-        public InputData(int runwayId, int plannedTakingOffMoment, AircraftTypes aircraftType, int priority)
+        public InputData(int runwayId, int plannedTakingOffMoment, AircraftTypes aircraftType, AircraftPriorities priority)
         {
             RunwayId = runwayId;
             PlannedTakingOffMoment = plannedTakingOffMoment;
@@ -30,6 +30,6 @@ namespace OptimalMotion3._1.Domain
         /// <summary>
         /// Приоритет ВС
         /// </summary>
-        public int Priority { get; }
+        public AircraftPriorities Priority { get; }
     }
 }

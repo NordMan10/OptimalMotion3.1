@@ -1,5 +1,6 @@
 ﻿
 
+using OptimalMotion3._1.Domain.Enums;
 using System.Collections.Generic;
 
 namespace OptimalMotion3._1.Domain.Static

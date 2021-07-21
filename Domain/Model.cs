@@ -3,9 +3,6 @@ using OptimalMotion3._1.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace OptimalMotion3._1.Domain
 {
@@ -180,14 +177,17 @@ namespace OptimalMotion3._1.Domain
 
                 var reserveAircraftStartMoments = GetReserveAircraftStartMoments(verifiedPermittedMoment, i, takingOffAircrafts);
 
-                takingOffAircrafts[i].Moments.Start = currentAircraftStartMoment;
-                takingOffAircrafts[i].Moments.PermittedTakingOffMoment = verifiedPermittedMoment;
+                var allStartMoments = new List<int> { currentAircraftStartMoment };
+                allStartMoments.AddRange(reserveAircraftStartMoments);
+                SetStartMoments(takingOffAircrafts, i, allStartMoments);
 
-                for (var j = 1; j <= reserveAircraftStartMoments.Count; j++)
+                var mostPriorityAircraftIndex = GetMostPriorityAircraftIndex(takingOffAircrafts, i, allStartMoments.Count);
+
+                for (var j = 0; j < allStartMoments.Count; j++)
                 {
-                    takingOffAircrafts[i + j].Moments.Start = reserveAircraftStartMoments[j - 1];
                     takingOffAircrafts[i + j].Moments.PermittedTakingOffMoment = verifiedPermittedMoment;
-                    takingOffAircrafts[i + j].IsReserve = true;
+                    if (i + j != mostPriorityAircraftIndex)
+                        takingOffAircrafts[i + j].IsReserve = true;
                 }
 
                 i += reserveAircraftStartMoments.Count;
@@ -195,6 +195,26 @@ namespace OptimalMotion3._1.Domain
             }
 
             return takingOffAircrafts;
+        }
+
+        private void SetStartMoments(List<TakingOffAircraft> takingOffAircrafts, int firstIndex, List<int> aircraftStartMoments)
+        {
+            for (var i = 0; i < aircraftStartMoments.Count; i++)
+            {
+                takingOffAircrafts[firstIndex + i].Moments.Start = aircraftStartMoments[i];
+            }
+        }
+
+        private int GetMostPriorityAircraftIndex(List<TakingOffAircraft> takingOffAircrafts, int firstIndex, int aircraftCount)
+        {
+            var mostPriorityAircraftIndex = firstIndex;
+            for (var i = 1; i < aircraftCount; i++)
+            {
+                if (takingOffAircrafts[firstIndex + i].Priority > takingOffAircrafts[mostPriorityAircraftIndex].Priority)
+                    mostPriorityAircraftIndex = firstIndex + i;
+            }
+
+            return mostPriorityAircraftIndex;
         }
 
         /// <summary>
@@ -225,7 +245,7 @@ namespace OptimalMotion3._1.Domain
         }
 
         /// <summary>
-        /// Возвращает момент старта для резервного ВС, если его возможно установить. Если невозможно, возвращает null
+        /// Возвращает список моментов старта для резервных ВС, если их возможно задать. Если невозможно, возвращает пустой список
         /// </summary>
         /// <param name="permittedMoment"></param>
         /// <param name="possibleMomentIndex"></param>
@@ -241,12 +261,12 @@ namespace OptimalMotion3._1.Domain
             // Проверяем, есть ли еще возможные моменты
             if (possibleMomentIndex < possibleTakingOffMoments.Count - 1)
             {
-                // Определяем необходимое количество резервных ВС
+                // Определяем допустимое количество резервных ВС
                 var reserveAircraftCount = GetReserveAircraftCount(permittedMoment, possibleMomentIndex, possibleTakingOffMoments);
 
                 for (var i = 1; i <= reserveAircraftCount; i++)
                 {
-                    // Проверяем, есть ли еще возможные моменты
+                    // Проверяем, есть ли еще возможные моменты и совпадают ли Id ВПП у ВС, которым принадлежат эти моменты
                     if (possibleMomentIndex + i < possibleTakingOffMoments.Count - 1 && 
                         takingOffAircrafts[possibleMomentIndex].RunwayId == takingOffAircrafts[possibleMomentIndex + i].RunwayId)
                     {
@@ -356,7 +376,7 @@ namespace OptimalMotion3._1.Domain
 
             return new TableRow(aircraft.Id.ToString(), aircraft.Moments.PlannedTakingOff.ToString(), aircraft.Moments.PossibleTakingOff.ToString(),
                     permittedMoment, aircraft.Moments.Start.ToString(), aircraftTotalMotionTime.ToString(), processingTime,
-                    aircraft.ProcessingIsNeeded, aircraft.IsReserve, aircraft.RunwayId.ToString(), specialPlaceId);
+                    aircraft.ProcessingIsNeeded, ((int)aircraft.Priority).ToString(), aircraft.IsReserve, aircraft.RunwayId.ToString(), specialPlaceId);
         }
 
         private void InitRunways(int runwayCount)
@@ -410,12 +430,5 @@ namespace OptimalMotion3._1.Domain
         {
             lastPermittedMomentIndex = -1;
         }
-
-        //public void ResetInputMoments()
-        //{
-        //    var baseCount = 10;
-        //    InputTakingOffMoments.PlannedMoments.RemoveRange(baseCount, InputTakingOffMoments.PlannedMoments.Count - baseCount);
-        //    InputTakingOffMoments.PermittedMoments.RemoveRange(baseCount, InputTakingOffMoments.PermittedMoments.Count - baseCount);
-        //}
     }
 }

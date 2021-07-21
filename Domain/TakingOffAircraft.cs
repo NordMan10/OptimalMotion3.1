@@ -10,7 +10,7 @@ namespace OptimalMotion3._1.Domain
 {
     public class TakingOffAircraft : IAircraft
     {
-        public TakingOffAircraft(int id, AircraftTypes type, int priority, TakingOffAircraftMoments moments, 
+        public TakingOffAircraft(int id, AircraftTypes type, AircraftPriorities priority, TakingOffAircraftMoments moments, 
             TakingOffAircraftIntervals intervals, bool processingIsNeeded, int runwayId, int specialPlaceId)
         {
             Id = id;
@@ -27,7 +27,7 @@ namespace OptimalMotion3._1.Domain
 
         public AircraftTypes Type { get; }
 
-        public int Priority { get; }
+        public AircraftPriorities Priority { get; }
 
         public TakingOffAircraftMoments Moments { get; }
 

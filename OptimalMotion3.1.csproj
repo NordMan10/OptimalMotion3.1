@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Domain\AircraftGenerator.cs" />
     <Compile Include="Domain\AircraftIdGenerator.cs" />
+    <Compile Include="Domain\Enums\AircraftPriorities.cs" />
     <Compile Include="Domain\Static\DataRandomizer.cs" />
     <Compile Include="Domain\Enums\AircraftTypes.cs" />
     <Compile Include="Domain\InputData.cs" />
