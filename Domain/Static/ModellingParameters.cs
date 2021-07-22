@@ -40,13 +40,13 @@ namespace OptimalMotion3._1.Domain.Static
 
         public static Dictionary<int, int> ReserveAircraftCount { get; } = new Dictionary<int, int>
         {
-            { int.MaxValue, 0 },
-            { 300, 1 },
-            { 240, 2 },
-            { 180, 3 },
-            { 120, 4 },
-            { 10, 5 },
-            { 0, 6 },
+            { 0, int.MaxValue },
+            { 1, 300 },
+            { 2, 240 },
+            { 3, 180 },
+            { 4, 120 },
+            { 5, 10 },
+            { 6, 0 },
         };
     }
 }
