@@ -1,4 +1,5 @@
-﻿using OptimalMotion3._1.Domain.Static;
+﻿using OptimalMotion3._1.Domain.Enums;
+using OptimalMotion3._1.Domain.Static;
 using OptimalMotion3._1.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -155,8 +156,14 @@ namespace OptimalMotion3._1.Domain
 
         private List<TakingOffAircraft> GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> takingOffAircrafts)
         {
+            var usedIndexes = new List<int>();
+
             for (var i = 0; i < takingOffAircrafts.Count; i++)
             {
+                // Проверяем, использовался ли уже этот индекс ВС
+                if (usedIndexes.Contains(i))
+                    continue;
+
                 // Получаем возможный момент ВС
                 var possibleMoment = takingOffAircrafts[i].Moments.PossibleTakingOff;
                 var nearestPermittedMoment = GetNearestPermittedMoment(possibleMoment);
@@ -174,48 +181,46 @@ namespace OptimalMotion3._1.Domain
 
                 var reserveAircraftStartMoments = GetReserveAircraftStartMoments(verifiedPermittedMoment, i, takingOffAircrafts);
 
-                // Создаем список моментов старта текущего и резервных ВС
-                var allStartMoments = new Dictionary<int, int> { { i, currentAircraftStartMoment } };
-                allStartMoments.Concat(reserveAircraftStartMoments);
+                // Создаем список моментов старта текущего и резервных ВС, привязанных по индексу ВС
+                var allAircraftsStartMomentData = new Dictionary<int, int> { { i, currentAircraftStartMoment } };
+                foreach (var item in reserveAircraftStartMoments)
+                    allAircraftsStartMomentData.Add(item.Key, item.Value);
 
                 // Задаем моменты старта для текущего и резервных ВС
-                SetStartMoments(allStartMoments, i, takingOffAircrafts);
+                SetStartMoments(allAircraftsStartMomentData, takingOffAircrafts);
 
-                var mostPriorityAircraftIndex = GetMostPriorityAircraftIndex(takingOffAircrafts, i, allStartMoments.Count);
+                var mostPriorityAircraftIndex = GetMostPriorityAircraftIndex(allAircraftsStartMomentData, takingOffAircrafts);
 
-                for (var j = 0; j < allStartMoments.Count; j++)
+                foreach (var dataItem in allAircraftsStartMomentData)
                 {
-                    if (takingOffAircrafts[i].RunwayId != takingOffAircrafts[i + j].RunwayId)
-                    {
-                        var t = 5;
-                    }
-                    takingOffAircrafts[i + j].Moments.PermittedTakingOffMoment = verifiedPermittedMoment;
-                    if (i + j != mostPriorityAircraftIndex)
-                        takingOffAircrafts[i + j].IsReserve = true;
+                    takingOffAircrafts[dataItem.Key].Moments.PermittedTakingOffMoment = verifiedPermittedMoment;
+                    if (dataItem.Key != mostPriorityAircraftIndex)
+                        takingOffAircrafts[dataItem.Key].IsReserve = true;
+
+                    usedIndexes.Add(dataItem.Key);
                 }
 
-                i += reserveAircraftStartMoments.Count;
                 lastPermittedMomentIndex += reserveAircraftStartMoments.Count;
             }
 
             return takingOffAircrafts;
         }
 
-        private void SetStartMoments(Dictionary<int, int> aircraftStartMoments, int currentAircraftIndex, List<TakingOffAircraft> takingOffAircrafts)
+        private void SetStartMoments(Dictionary<int, int> aircraftsStartMomentData, List<TakingOffAircraft> takingOffAircrafts)
         {
-            foreach (var momentItem in aircraftStartMoments)
+            foreach (var momentItem in aircraftsStartMomentData)
             {
                 takingOffAircrafts[momentItem.Key].Moments.Start = momentItem.Value;
             }
         }
 
-        private int GetMostPriorityAircraftIndex(List<TakingOffAircraft> takingOffAircrafts, int firstIndex, int aircraftCount)
+        private int GetMostPriorityAircraftIndex(Dictionary<int, int> aircraftsStartMomentData, List<TakingOffAircraft> takingOffAircrafts)
         {
-            var mostPriorityAircraftIndex = firstIndex;
-            for (var i = 1; i < aircraftCount; i++)
+            var mostPriorityAircraftIndex = aircraftsStartMomentData.First().Key;
+            foreach (var dataItem in aircraftsStartMomentData)
             {
-                if (takingOffAircrafts[firstIndex + i].Priority > takingOffAircrafts[mostPriorityAircraftIndex].Priority)
-                    mostPriorityAircraftIndex = firstIndex + i;
+                if (takingOffAircrafts[dataItem.Key].Priority > takingOffAircrafts[mostPriorityAircraftIndex].Priority)
+                    mostPriorityAircraftIndex = dataItem.Key;
             }
 
             return mostPriorityAircraftIndex;
@@ -236,11 +241,6 @@ namespace OptimalMotion3._1.Domain
 
                 aircraft.PSWaitingTime = aircraft.Moments.PermittedTakingOffMoment - arrivalToPSMoment - aircraft.Intervals.MotionFromPSToES - 
                     aircraft.Intervals.TakingOff;
-
-                if (aircraft.PSWaitingTime > 30)
-                {
-                    var t = 5;
-                }
             }
         }
 
