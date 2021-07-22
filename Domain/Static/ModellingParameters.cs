@@ -35,7 +35,7 @@ namespace OptimalMotion3._1.Domain.Static
         /// <summary>
         ///  Резервное время прибытия
         /// </summary>
-        public static int ArrivalReserveTime { get; set; } = 30;
+        public static Interval ArrivalReserveTime { get; set; } = new Interval(20, 50);
 
 
         public static Dictionary<int, int> ReserveAircraftCount { get; } = new Dictionary<int, int>
@@ -46,7 +46,7 @@ namespace OptimalMotion3._1.Domain.Static
             { 3, 180 },
             { 4, 120 },
             { 5, 10 },
-            { 6, 0 },
+            { int.MaxValue, 0 },
         };
     }
 }

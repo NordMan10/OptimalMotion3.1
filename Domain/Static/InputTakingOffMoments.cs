@@ -52,7 +52,7 @@ namespace OptimalMotion3._1.Domain.Static
             foreach (var permittedMoment in permittedMoments)
             {
                 // Если разрешенный момент больше или равен возможному + резервное время прибытия => возвращаем его
-                if (permittedMoment >= possibleMoment + ModellingParameters.ArrivalReserveTime)
+                if (permittedMoment - ModellingParameters.ArrivalReserveTime.FirstMoment >= possibleMoment)
                 {
                     lastPermittedMomentIndex = orderedPermittedMoments.IndexOf(permittedMoment);
                     return permittedMoment;
@@ -82,5 +82,23 @@ namespace OptimalMotion3._1.Domain.Static
         {
             lastPermittedMomentIndex = -1;
         }
+
+        //private void SetStartMomentsByTakingOffMoments(Dictionary<TakingOffAircraft, int> aircraftsAndTakingOffMoments, int totalDelay)
+        //{
+        //    foreach (var item in aircraftsAndTakingOffMoments)
+        //    {
+        //        var aircraft = item.Key;
+        //        var takingOffMoment = item.Value;
+
+        //        aircraft.CalculatingMoments.Start = takingOffMoment - aircraft.CreationIntervals.TakingOff -
+        //            aircraft.CreationIntervals.MotionFromPSToES + totalDelay;
+
+        //        if (aircraft.ProcessingIsNeeded)
+        //            aircraft.CalculatingMoments.Start -= aircraft.CreationIntervals.MotionFromSPToPS - aircraft.CreationIntervals.Processing -
+        //                aircraft.CreationIntervals.MotionFromParkingToSP;
+        //        else
+        //            aircraft.CalculatingMoments.Start -= aircraft.CreationIntervals.MotionFromParkingToPS;
+        //    }
+        //}
     }
 }

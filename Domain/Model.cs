@@ -65,6 +65,9 @@ namespace OptimalMotion3._1.Domain
             var takingOffAircrafts= new List<TakingOffAircraft>();
             var orderedPlannedTakingOffMoments = plannedTakingOffMoments.OrderBy(m => m).ToList();
 
+            var startDelay = 0;
+            //var startMomentsData = new Dictionary<TakingOffAircraft, int>();
+
             for (var i = 0; i < orderedPlannedTakingOffMoments.Count; i++)
             {
                 // Генерируем входные данные для нового ВС
@@ -77,7 +80,7 @@ namespace OptimalMotion3._1.Domain
                 var takingOffInterval = new Interval(inputData.PlannedTakingOffMoment - takingOffAircraft.CreationIntervals.TakingOff, inputData.PlannedTakingOffMoment);
 
                 // Получаем задержку
-                var startDelay = GetRunwayStartDelay(takingOffAircraft, takingOffInterval);
+                startDelay = GetRunwayStartDelay(takingOffAircraft, takingOffInterval);
 
                 // Если нужна обработка
                 if (takingOffAircraft.ProcessingIsNeeded)
@@ -89,13 +92,13 @@ namespace OptimalMotion3._1.Domain
                     var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES -
                         takingOffAircraft.CreationIntervals.MotionFromSPToPS - takingOffAircraft.CreationIntervals.Processing;
 
-                    startMoment = SPArriveMoment - takingOffAircraft.CreationIntervals.MotionFromParkingToSP + startDelay - ModellingParameters.ArrivalReserveTime;
+                    startMoment = SPArriveMoment - takingOffAircraft.CreationIntervals.MotionFromParkingToSP + startDelay - ModellingParameters.ArrivalReserveTime.LastMoment;
                 }
                 else
                 {
                     // Рассчитываем и задаем момент старта при отсутствии необходимости обработки
                     startMoment = takingOffInterval.FirstMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES - takingOffAircraft.CreationIntervals.MotionFromParkingToPS +
-                        startDelay - ModellingParameters.ArrivalReserveTime;
+                        startDelay - ModellingParameters.ArrivalReserveTime.LastMoment;
                 }
 
                 // Задаем рассчитанный момент старта текущему ВС
@@ -103,12 +106,35 @@ namespace OptimalMotion3._1.Domain
                 // Рассчитываем и задаем возможный момент взлета
                 takingOffAircraft.CalculatingMoments.PossibleTakingOff = takingOffAircraft.CreationMoments.PlannedTakingOff + startDelay;
 
+                //startMomentsData.Add(takingOffAircraft, takingOffAircraft.CreationMoments.PlannedTakingOff);
+
                 takingOffAircrafts.Add(takingOffAircraft);
             }
+
 
             var orderedTakingOffAircrafts = takingOffAircrafts.OrderBy(a => a.CalculatingMoments.PossibleTakingOff).ToList();
             return orderedTakingOffAircrafts;
         }
+
+        //private void SetStartMomentsByTakingOffMoments(Dictionary<TakingOffAircraft, int> aircraftsAndTakingOffMoments, int totalDelay)
+        //{
+        //    foreach (var item in aircraftsAndTakingOffMoments)
+        //    {
+        //        var aircraft = item.Key;
+        //        var takingOffMoment = item.Value;
+
+        //        //var temp = takingOffMoment - aircraft.CreationIntervals.TakingOff -
+        //        //    aircraft.CreationIntervals.MotionFromPSToES + totalDelay;
+
+        //        if (aircraft.ProcessingIsNeeded)
+        //            aircraft.CalculatingMoments.Start = takingOffMoment - aircraft.CreationIntervals.TakingOff -
+        //            aircraft.CreationIntervals.MotionFromPSToES - aircraft.CreationIntervals.MotionFromSPToPS - aircraft.CreationIntervals.Processing -
+        //                aircraft.CreationIntervals.MotionFromParkingToSP + totalDelay;
+        //        else
+        //            aircraft.CalculatingMoments.Start = takingOffMoment - aircraft.CreationIntervals.TakingOff -
+        //            aircraft.CreationIntervals.MotionFromPSToES - aircraft.CreationIntervals.MotionFromParkingToPS + totalDelay;
+        //    }
+        //}
 
         /// <summary>
         /// Возвращает задержку момента старта от ВПП
@@ -186,7 +212,7 @@ namespace OptimalMotion3._1.Domain
                     allAircraftsStartMomentData.Add(item.Key, item.Value);
 
                 // Задаем моменты старта для текущего и резервных ВС
-                SetStartMoments(allAircraftsStartMomentData, takingOffAircrafts);
+                SetSPreparedStartMoments(allAircraftsStartMomentData, takingOffAircrafts);
 
                 var mostPriorityAircraftIndex = GetMostPriorityAircraftIndex(allAircraftsStartMomentData, takingOffAircrafts);
 
@@ -206,7 +232,7 @@ namespace OptimalMotion3._1.Domain
             return takingOffAircrafts;
         }
 
-        private void SetStartMoments(Dictionary<int, int> aircraftsStartMomentData, List<TakingOffAircraft> takingOffAircrafts)
+        private void SetSPreparedStartMoments(Dictionary<int, int> aircraftsStartMomentData, List<TakingOffAircraft> takingOffAircrafts)
         {
             foreach (var momentItem in aircraftsStartMomentData)
             {
@@ -305,13 +331,18 @@ namespace OptimalMotion3._1.Domain
         private int GetReserveAircraftCount(int permittedMoment, int aircraftIndex, List<int> possibleTakingOffMoments)
         {
             var reserveAircraftCount = 0;
+            var permittedInterval = new Interval(permittedMoment - ModellingParameters.ArrivalReserveTime.FirstMoment,
+                    permittedMoment - ModellingParameters.ArrivalReserveTime.LastMoment);
 
-            // Определяем максимально возможное количество резервных ВС
             var index = 1;
-            while (aircraftIndex + index < possibleTakingOffMoments.Count - 1 && 
-                permittedMoment >= possibleTakingOffMoments[aircraftIndex + index] + ModellingParameters.ArrivalReserveTime)
+            // Определяем максимально возможное количество резервных ВС.
+            // Пока имеются возможные моменты и разрешенный момент входит в разрешенный страховочный интервал
+            while (aircraftIndex + index < possibleTakingOffMoments.Count - 1 &&
+                permittedMoment - ModellingParameters.ArrivalReserveTime.FirstMoment >= possibleTakingOffMoments[aircraftIndex + index])
             {
+                // Увеличиваем количество резервных ВС
                 reserveAircraftCount++;
+                // Увеличиваем индекс
                 index++;
             }
 

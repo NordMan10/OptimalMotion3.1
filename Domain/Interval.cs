@@ -36,5 +36,10 @@ namespace OptimalMotion3._1.Domain
         {
             return LastMoment - FirstMoment;
         }
+
+        public bool IsMomentInInterval(int moment)
+        {
+            return FirstMoment <= moment && LastMoment >= moment;
+        }
     }
 }
