@@ -131,7 +131,7 @@ namespace OptimalMotion3._1
             topLayout.Controls.Add(StartButton, 0, 0);
             topLayout.Controls.Add(ParametersButton, 1, 0);
             topLayout.Controls.Add(ResetButton, 2, 0);
-            topLayout.Controls.Add(AddDepurtureButton, 3, 0);
+            //topLayout.Controls.Add(AddDepurtureButton, 3, 0);
             topLayout.Name = "topLayout";
             topLayout.RowCount = 1;
             topLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
