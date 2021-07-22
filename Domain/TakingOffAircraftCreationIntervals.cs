@@ -2,9 +2,9 @@
 
 namespace OptimalMotion3._1.Domain
 {
-    public class TakingOffAircraftIntervals
+    public class TakingOffAircraftCreationIntervals
     {
-        public TakingOffAircraftIntervals(
+        public TakingOffAircraftCreationIntervals(
             int motionFromParkingToPS, int motionFromPSToES, int takeoff,
             int motionFromParkingToSP, int motionFromSPToPS, int processing)
         {
@@ -14,7 +14,6 @@ namespace OptimalMotion3._1.Domain
             MotionFromParkingToSP = motionFromParkingToSP;
             MotionFromSPToPS = motionFromSPToPS;
             Processing = processing;
-            //PSDelay = psDelay;
         }
 
         public int MotionFromParkingToPS { get; }
@@ -23,6 +22,5 @@ namespace OptimalMotion3._1.Domain
         public int Processing { get; }
         public int MotionFromParkingToSP { get; }
         public int MotionFromSPToPS { get; }
-        //public int PSDelay { get; }
     }
 }

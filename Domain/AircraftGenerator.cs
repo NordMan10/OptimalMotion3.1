@@ -42,8 +42,8 @@ namespace OptimalMotion3._1.Domain
         {
             var id = idGenerator.GetUniqueAircraftId();
 
-            var moments = new TakingOffAircraftMoments(inputData.PlannedTakingOffMoment);
-            var intervals = GetTakingOffAircraftIntervals();
+            var moments = new TakingOffAircraftCreationMoments(inputData.PlannedTakingOffMoment);
+            var intervals = GetTakingOffAircraftCreationIntervals();
 
             var processingIsNeededVariants = new List<bool> { true, false };
             var processingIsNeeded = processingIsNeededVariants[random.Next(0, processingIsNeededVariants.Count)];
@@ -57,7 +57,7 @@ namespace OptimalMotion3._1.Domain
         /// Возвращает набор заданных интервалов
         /// </summary>
         /// <returns></returns>
-        private TakingOffAircraftIntervals GetTakingOffAircraftIntervals()
+        private TakingOffAircraftCreationIntervals GetTakingOffAircraftCreationIntervals()
         {
             var motionFromParkingToPS = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.MotionFromParkingToPS, 25, 15);
             var motionFromPSToES = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.MotionFromPSToES, 25, 5);
@@ -66,7 +66,7 @@ namespace OptimalMotion3._1.Domain
             var motionFromSPToPS = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.MotionFromSPToPS, 25, 15);
             var processingTime = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.ProcessingTime, 25, 30);
 
-            return new TakingOffAircraftIntervals(motionFromParkingToPS, motionFromPSToES, takingOffInterval, motionFromParkingToSP, 
+            return new TakingOffAircraftCreationIntervals(motionFromParkingToPS, motionFromPSToES, takingOffInterval, motionFromParkingToSP, 
                 motionFromSPToPS, processingTime);
         }
     }

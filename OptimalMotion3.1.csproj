@@ -60,13 +60,15 @@
     <Compile Include="Domain\Static\TakingOffAircraftData.cs" />
     <Compile Include="Domain\Table.cs" />
     <Compile Include="Domain\TableRow.cs" />
+    <Compile Include="Domain\TakingOffAircraftCalculatingMoments.cs" />
+    <Compile Include="Domain\TakingOffAircraftCalculatingIntervals.cs" />
     <Compile Include="Interfaces\ITable.cs" />
     <Compile Include="Domain\PreliminaryStart.cs" />
     <Compile Include="Domain\Runway.cs" />
     <Compile Include="Domain\SpecialPlace.cs" />
     <Compile Include="Domain\TakingOffAircraft.cs" />
-    <Compile Include="Domain\TakingOffAircraftIntervals.cs" />
-    <Compile Include="Domain\TakingOffAircraftMoments.cs" />
+    <Compile Include="Domain\TakingOffAircraftCreationIntervals.cs" />
+    <Compile Include="Domain\TakingOffAircraftCreationMoments.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -2,9 +2,9 @@
 
 namespace OptimalMotion3._1.Domain
 {
-    public class TakingOffAircraftMoments
+    public class TakingOffAircraftCreationMoments
     {
-        public TakingOffAircraftMoments(int plannedTakingOff)
+        public TakingOffAircraftCreationMoments(int plannedTakingOff)
         {
             PlannedTakingOff = plannedTakingOff;
         }
@@ -13,11 +13,5 @@ namespace OptimalMotion3._1.Domain
         /// Плановый момент вылета
         /// </summary>
         public int PlannedTakingOff { get; }
-
-        public int PossibleTakingOff { get; set; }
-
-        public int PermittedTakingOffMoment { get; set; }
-
-        public int Start { get; set; }
     }
 }

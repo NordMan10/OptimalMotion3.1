@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace OptimalMotion3._1.Domain.Static
 {
@@ -6,6 +7,11 @@ namespace OptimalMotion3._1.Domain.Static
     {
         public static int PlannedMomentsStep { get; } = 90;
         public static int PermittedMomentsStep { get; } = 90;
+
+        private static int lastPlannedTakingOffMomentIndex = -1;
+
+        private static int lastPermittedMomentIndex = -1;
+
 
         public static List<int> PlannedMoments { get; } = new List<int>
         {
@@ -22,6 +28,59 @@ namespace OptimalMotion3._1.Domain.Static
         {
             PlannedMoments.Add(plannedMoment);
             PermittedMoments.Add(permittedMoment);
+        }
+
+        public static int GetNextPermittedMoment()
+        {
+            return PermittedMoments[++lastPermittedMomentIndex];
+        }
+
+        /// <summary>
+        /// Возвращаем ближайший разрешенный момент для переданного возможного момента, если его возможно установить. 
+        /// Если невозможно, возвращает null
+        /// </summary>
+        /// <param name="possibleMoment"></param>
+        /// <returns></returns>
+        public static int? GetNearestPermittedMoment(int possibleMoment)
+        {
+            // Упорядочиваем разрешенные моменты
+            var orderedPermittedMoments = InputTakingOffMoments.PermittedMoments.OrderBy(m => m).ToList();
+            // Выбираем только те, что еще не были использованы
+            var permittedMoments = orderedPermittedMoments.Skip(lastPermittedMomentIndex + 1).ToList();
+
+            // Проверяем каждый разрешенный момент
+            foreach (var permittedMoment in permittedMoments)
+            {
+                // Если разрешенный момент больше или равен возможному + резервное время прибытия => возвращаем его
+                if (permittedMoment >= possibleMoment + ModellingParameters.ArrivalReserveTime)
+                {
+                    lastPermittedMomentIndex = orderedPermittedMoments.IndexOf(permittedMoment);
+                    return permittedMoment;
+                }
+            }
+
+            return null;
+        }
+
+        public static List<int> GetUnusedPlannedMoments()
+        {
+            // Отбираем еще не использованные плановые моменты
+            var unusedMoments = PlannedMoments.Skip(lastPlannedTakingOffMomentIndex + 1).ToList();
+
+            // Увеличиваем индекс последнего использованного планового момента
+            lastPlannedTakingOffMomentIndex += unusedMoments.Count;
+
+            return unusedMoments;
+        }
+
+        public static void ResetLastPlannedTakingOffMomentIndex()
+        {
+            lastPlannedTakingOffMomentIndex = -1;
+        }
+
+        public static void ResetLastPermittedMomentIndex()
+        {
+            lastPermittedMomentIndex = -1;
         }
     }
 }
