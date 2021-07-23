@@ -49,15 +49,16 @@
     <Compile Include="Domain\AircraftGenerator.cs" />
     <Compile Include="Domain\AircraftIdGenerator.cs" />
     <Compile Include="Domain\Enums\AircraftPriorities.cs" />
+    <Compile Include="Domain\Static\ConstantTakingOffCreationIntervals.cs" />
+    <Compile Include="Domain\Static\ProgramConstants.cs" />
     <Compile Include="Domain\Static\DataRandomizer.cs" />
     <Compile Include="Domain\Enums\AircraftTypes.cs" />
-    <Compile Include="Domain\InputData.cs" />
-    <Compile Include="Domain\InputDataGenerator.cs" />
+    <Compile Include="Domain\AircraftInputDataGenerator.cs" />
     <Compile Include="Domain\Static\IMassServiceDeviceExtensions.cs" />
     <Compile Include="Domain\Interval.cs" />
-    <Compile Include="Domain\Static\ModellingParameters.cs" />
+    <Compile Include="Domain\Static\CommonInputData.cs" />
     <Compile Include="Domain\Static\InputTakingOffMoments.cs" />
-    <Compile Include="Domain\Static\TakingOffAircraftData.cs" />
+    <Compile Include="Domain\Static\AircraftInputData.cs" />
     <Compile Include="Domain\Table.cs" />
     <Compile Include="Domain\TableRow.cs" />
     <Compile Include="Domain\TakingOffAircraftCalculatingMoments.cs" />
@@ -110,6 +111,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Text\Abbriviations.md" />
     <None Include="Text\Notes.md" />
   </ItemGroup>
   <ItemGroup>

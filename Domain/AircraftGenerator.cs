@@ -1,7 +1,5 @@
-﻿using OptimalMotion3._1.Domain.Enums;
-using OptimalMotion3._1.Domain.Static;
+﻿using OptimalMotion3._1.Domain.Static;
 using System;
-using System.Collections.Generic;
 
 namespace OptimalMotion3._1.Domain
 {
@@ -38,36 +36,12 @@ namespace OptimalMotion3._1.Domain
         /// <param name="inputData">Экземпляр входных данных</param>
         /// <param name="type">Тип ВС</param>
         /// <returns></returns>
-        public TakingOffAircraft GetTakingOffAircraft(InputData inputData)
+        public TakingOffAircraft GetTakingOffAircraft(AircraftInputData inputData)
         {
             var id = idGenerator.GetUniqueAircraftId();
 
-            var moments = new TakingOffAircraftCreationMoments(inputData.PlannedTakingOffMoment);
-            var intervals = GetTakingOffAircraftCreationIntervals();
-
-            var processingIsNeededVariants = new List<bool> { true, false };
-            var processingIsNeeded = processingIsNeededVariants[random.Next(0, processingIsNeededVariants.Count)];
-
-            var specialPlaceId = DataRandomizer.GetRandomizedValue(ModellingParameters.StartIdValue, ModellingParameters.SpecialPlaceCount + 1);
-
-            return new TakingOffAircraft(id, inputData.AircraftType, inputData.Priority, moments, intervals, processingIsNeeded, inputData.RunwayId, specialPlaceId);
-        }
-
-        /// <summary>
-        /// Возвращает набор заданных интервалов
-        /// </summary>
-        /// <returns></returns>
-        private TakingOffAircraftCreationIntervals GetTakingOffAircraftCreationIntervals()
-        {
-            var motionFromParkingToPS = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.MotionFromParkingToPS, 25, 15);
-            var motionFromPSToES = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.MotionFromPSToES, 25, 5);
-            var takingOffInterval = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.TakingOffInterval, 0, 5);
-            var motionFromParkingToSP = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.MotionFromParkingToSP, 25, 15);
-            var motionFromSPToPS = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.MotionFromSPToPS, 25, 15);
-            var processingTime = DataRandomizer.GetRandomizedValue(TakingOffAircraftData.ProcessingTime, 25, 30);
-
-            return new TakingOffAircraftCreationIntervals(motionFromParkingToPS, motionFromPSToES, takingOffInterval, motionFromParkingToSP, 
-                motionFromSPToPS, processingTime);
+            return new TakingOffAircraft(id, inputData.Type, inputData.Priority, inputData.CreationMoments, 
+                inputData.CreationIntervals, inputData.ProcessingIsNeeded, inputData.RunwayId, inputData.SpecialPlaceId);
         }
     }
 }

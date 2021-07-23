@@ -1,10 +1,11 @@
 ﻿using OptimalMotion3._1.Domain;
+using System;
 
 namespace OptimalMotion3._1.Interfaces
 {
     public interface IMassServiceZone
     { 
-        int Id { get; }
+        //IComparable Id { get; }
         
         Interval GetFreeInterval(Interval newInterval);
         

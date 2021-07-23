@@ -10,12 +10,12 @@ namespace OptimalMotion3._1.Domain
 {
     public class Runway : IMassServiceZone
     {
-        public Runway(int id)
+        public Runway(string id)
         {
             Id = id;
         }
 
-        public int Id { get; }
+        public string Id { get; }
 
         private readonly Dictionary<int, Interval> OccupiedIntervals = new Dictionary<int, Interval>();
 

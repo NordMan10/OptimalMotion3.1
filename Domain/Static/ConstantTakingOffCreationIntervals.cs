@@ -2,7 +2,7 @@
 
 namespace OptimalMotion3._1.Domain.Static
 {
-    public static class TakingOffAircraftData
+    public class ConstantTakingOffCreationIntervals
     {
         /// <summary>
         /// Время руления от парковки до ПРДВ

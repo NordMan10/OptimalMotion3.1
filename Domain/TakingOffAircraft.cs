@@ -10,8 +10,8 @@ namespace OptimalMotion3._1.Domain
 {
     public class TakingOffAircraft : IAircraft
     {
-        public TakingOffAircraft(int id, AircraftTypes type, AircraftPriorities priority, TakingOffAircraftCreationMoments creationMoments, 
-            TakingOffAircraftCreationIntervals creationIntervals, bool processingIsNeeded, int runwayId, int specialPlaceId)
+        public TakingOffAircraft(int id, string type, int priority, TakingOffAircraftCreationMoments creationMoments, 
+            TakingOffAircraftCreationIntervals creationIntervals, bool processingIsNeeded, string runwayId, int specialPlaceId)
         {
             Id = id;
             Type = type;
@@ -25,9 +25,9 @@ namespace OptimalMotion3._1.Domain
 
         public int Id { get; }
 
-        public AircraftTypes Type { get; }
+        public string Type { get; }
 
-        public AircraftPriorities Priority { get; }
+        public int Priority { get; }
 
         public TakingOffAircraftCreationMoments CreationMoments { get; }
         public TakingOffAircraftCalculatingMoments CalculatingMoments { get; } = new TakingOffAircraftCalculatingMoments();
@@ -39,7 +39,7 @@ namespace OptimalMotion3._1.Domain
 
         public bool IsReserve { get; set; }
 
-        public int RunwayId { get; }
+        public string RunwayId { get; }
 
         public int SpecialPlaceId { get; }
     }
