@@ -20,12 +20,11 @@ namespace OptimalMotion3._1.Domain
 
         public Dictionary<int, Runway> Runways { get; } = new Dictionary<int, Runway>();
         public Dictionary<int, SpecialPlace> SpecialPlaces { get; } = new Dictionary<int, SpecialPlace>();
+
         private readonly ITable table;
 
-        private static AircraftIdGenerator idGenerator = AircraftIdGenerator.GetInstance(ModellingParameters.StartIdValue);
-
-        private AircraftGenerator aircraftGenerator = AircraftGenerator.GetInstance(idGenerator);
-
+        private static readonly AircraftIdGenerator idGenerator = AircraftIdGenerator.GetInstance(ModellingParameters.StartIdValue);
+        private readonly AircraftGenerator aircraftGenerator = AircraftGenerator.GetInstance(idGenerator);
         private readonly InputDataGenerator inputDataGenerator = new InputDataGenerator();
 
         public event Func<List<TableRow>> AddTakingOffAircrafts;
@@ -418,6 +417,8 @@ namespace OptimalMotion3._1.Domain
                     aircraft.RunwayId.ToString(), specialPlaceId);
         }
 
+        #region Initializations
+
         private void InitRunways(int runwayCount)
         {
             for (var i = ModellingParameters.StartIdValue; i < runwayCount + ModellingParameters.StartIdValue; i++)
@@ -435,6 +436,11 @@ namespace OptimalMotion3._1.Domain
                 SpecialPlaces.Add(i, specialPlace);
             }
         }
+
+        #endregion
+
+
+        #region UpdateAndReset
 
         public void UpdateModel(int runwayCount, int specialPlaceCount)
         {
@@ -460,14 +466,18 @@ namespace OptimalMotion3._1.Domain
             }
         }
 
-        public void ResetLastPlannedTakingOffMomentIndex()
+        public void ResetRunways()
         {
-            InputTakingOffMoments.ResetLastPlannedTakingOffMomentIndex();
+            foreach (var runway in Runways.Values)
+                runway.Reset();
         }
 
-        public void ResetLastPermittedMomentIndex()
+        public void ResetSpecialPlaces()
         {
-            InputTakingOffMoments.ResetLastPermittedMomentIndex();
+            foreach (var specialPlace in SpecialPlaces.Values)
+                specialPlace.Reset();
         }
+
+        #endregion
     }
 }

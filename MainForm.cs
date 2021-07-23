@@ -370,14 +370,12 @@ namespace OptimalMotion3._1
         private void ResetButton_Click(object sender, EventArgs e)
         {
             table.Reset();
-            model.ResetLastPlannedTakingOffMomentIndex();
-            model.ResetLastPermittedMomentIndex();
 
-            foreach (var runway in model.Runways.Values)
-                runway.Reset();
+            InputTakingOffMoments.ResetLastPlannedTakingOffMomentIndex();
+            InputTakingOffMoments.ResetLastPermittedMomentIndex();
 
-            foreach (var specialPlace in model.SpecialPlaces.Values)
-                specialPlace.Reset();
+            model.ResetRunways();
+            model.ResetSpecialPlaces();
         }
     }
 }
