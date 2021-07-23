@@ -176,7 +176,11 @@ namespace OptimalMotion3._1.Domain
             return freeSPInterval.FirstMoment - processingInterval.FirstMoment;
         }
 
-
+        /// <summary>
+        /// Возвращает список ВС с заданными резервными ВС
+        /// </summary>
+        /// <param name="takingOffAircrafts"></param>
+        /// <returns></returns>
         private List<TakingOffAircraft> GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> takingOffAircrafts)
         {
             var usedIndexes = new List<int>();

@@ -69,15 +69,9 @@ namespace OptimalMotion3._1
             tableDataGridView.ColumnHeadersHeight = 30;
 
             tableDataGridView.DataBindingComplete += GraphicBaseOnDataBindingComplete;
-            //tableDataGridView.ColumnHeaderMouseClick += TableDataGridView_ColumnHeaderMouseClick;
 
             table = new Table(tableDataGridView);
         }
-
-        //private void TableDataGridView_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
-        //{
-        //    tableDataGridView.Sort(tableDataGridView.Columns[e.ColumnIndex], ListSortDirection.Ascending);
-        //}
 
         private void GraphicBaseOnDataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
@@ -107,15 +101,17 @@ namespace OptimalMotion3._1
 
             mainLayout.ColumnCount = 1;
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            mainLayout.Controls.Add(topLayout, 0, 0);
-            mainLayout.Controls.Add(tableDataGridView, 0, 1);
-            mainLayout.Name = "mainLayout";
+
             mainLayout.RowCount = 2;
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 75F));
+
             mainLayout.Dock = DockStyle.Fill;
             mainLayout.TabIndex = 0;
+            mainLayout.Name = "mainLayout";
 
+            mainLayout.Controls.Add(topLayout, 0, 0);
+            mainLayout.Controls.Add(tableDataGridView, 0, 1);
         }
 
         private void InitTopLayout()
@@ -128,15 +124,17 @@ namespace OptimalMotion3._1
             topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
             topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35F));
             topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            topLayout.Controls.Add(StartButton, 0, 0);
-            topLayout.Controls.Add(ParametersButton, 1, 0);
-            topLayout.Controls.Add(ResetButton, 2, 0);
-            //topLayout.Controls.Add(AddDepurtureButton, 3, 0);
+
             topLayout.Name = "topLayout";
             topLayout.RowCount = 1;
             topLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             topLayout.Dock = DockStyle.Fill;
             topLayout.CellBorderStyle = TableLayoutPanelCellBorderStyle.Inset;
+
+            topLayout.Controls.Add(StartButton, 0, 0);
+            topLayout.Controls.Add(ParametersButton, 1, 0);
+            topLayout.Controls.Add(ResetButton, 2, 0);
+
         }
 
         private void InitInputDataTableLayout()
@@ -150,20 +148,19 @@ namespace OptimalMotion3._1
             inputDataTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             inputDataTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             inputDataTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            inputDataTableLayout.Name = "inputDataTableLayout";
 
             inputDataTableLayout.RowCount = 4;
             inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
             inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
             inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
             inputDataTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
+
+            inputDataTableLayout.Name = "inputDataTableLayout";
             inputDataTableLayout.Dock = DockStyle.Fill;
 
             AddInputsToControls();
 
             inputDataTableLayout.Controls.Add(ParametersFormOkButton, 2, 3);
-
-            //inputDataTableLayout.CellBorderStyle = TableLayoutPanelCellBorderStyle.Inset;
         }
 
         private void AddInputsToControls()
@@ -186,7 +183,6 @@ namespace OptimalMotion3._1
             var runwayCountInput = new MaskedTextBox() { Text = "2", TabIndex = 0 };
             var SPCount = new MaskedTextBox() { Text = "2", TabIndex = 1 };
             var processingTime = new MaskedTextBox() { Text = "240", TabIndex = 2 };
-            var takingOffStep = new MaskedTextBox() { Text = "180", TabIndex = 3 };
 
             dataTableItems = new Dictionary<string, Tuple<Label, MaskedTextBox>>
             {
@@ -202,10 +198,6 @@ namespace OptimalMotion3._1
                     "processingTime", 
                     Tuple.Create(new Label() { Text = "Среднее время обработки:" }, processingTime) 
                 },
-                //{
-                //    "takingOffStep", 
-                //    Tuple.Create(new Label() { Text = "Интервал моментов взлета:" }, takingOffStep) 
-                //},
             };
 
             foreach (var item in dataTableItems)
@@ -236,31 +228,25 @@ namespace OptimalMotion3._1
                 ConstantTakingOffCreationIntervals.ProcessingTime = int.Parse(input.Text);
         }
 
-        //private void HandleTakingOffStepInputValue(object sender, EventArgs e)
-        //{
-        //    var input = dataTableItems["takingOffStep"].Item2;
-        //    if (input.Text != "")
-        //        ModellingParameters.TakingOffMomentStep = int.Parse(input.Text);
-        //}
-
         private void InitButtons()
         {
             InitStartButton();
             InitParametersButton();
             InitParametersFormOkButton();
             InitResetButton();
-            //InitAddDepurtureButton();
         }
 
         private void InitStartButton()
         {
             StartButton = new Button();
+
             StartButton.Text = "Start";
-            StartButton.Click += StartButtonOnClick;
             StartButton.Font = new Font("Roboto", 16f, FontStyle.Bold, GraphicsUnit.Pixel);
             StartButton.Size = new Size(90, 40);
             StartButton.BackColor = Color.LimeGreen;
             StartButton.FlatStyle = FlatStyle.Flat;
+
+            StartButton.Click += StartButtonOnClick;
 
             Controls.Add(StartButton);
         }
@@ -268,34 +254,35 @@ namespace OptimalMotion3._1
         private void InitParametersButton()
         {
             ParametersButton = new Button();
+
             ParametersButton.Text = "Задать параметры";
-            ParametersButton.Click += ParametersButton_Click;
             ParametersButton.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
-            //ParametersButton.Size = new Size(150, 40);
             ParametersButton.AutoSize = true;
             ParametersButton.BackColor = Color.White;
             ParametersButton.FlatStyle = FlatStyle.Flat;
+
+            ParametersButton.Click += ParametersButton_Click;
         }
 
         private void InitResetButton()
         {
             ResetButton = new Button();
+
             ResetButton.Text = "Очистить таблицу";
-            ResetButton.Click += ResetButton_Click; ;
             ResetButton.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
-            //ResetTableButton.Size = new Size(150, 40);
             ResetButton.AutoSize = true;
             ResetButton.BackColor = Color.White;
             ResetButton.FlatStyle = FlatStyle.Flat;
+
+            ResetButton.Click += ResetButton_Click;
         }
 
         private void InitParametersFormOkButton()
         {
             ParametersFormOkButton = new Button();
-            ParametersFormOkButton.Text = "OK";
 
+            ParametersFormOkButton.Text = "OK";
             ParametersFormOkButton.Font = new Font("Roboto", 14f, GraphicsUnit.Pixel);
-            //ParametersButton.Size = new Size(50, 40);
             ParametersFormOkButton.AutoSize = true;
             ParametersFormOkButton.BackColor = Color.White;
             ParametersFormOkButton.FlatStyle = FlatStyle.Flat;
@@ -303,7 +290,6 @@ namespace OptimalMotion3._1
             ParametersFormOkButton.Click += HandleRunwayCountInputValue;
             ParametersFormOkButton.Click += HandleSPCountInputValue;
             ParametersFormOkButton.Click += HandleProcessingTimeInputValue;
-            //ParametersFormOkButton.Click += HandleTakingOffStepInputValue;
 
             ParametersFormOkButton.Click += ParametersFormOkButton_Click;
         }
@@ -320,8 +306,6 @@ namespace OptimalMotion3._1
 
             AddDepurtureButton.Click += StartButtonOnClick;
         }
-
-        
 
         private void ParametersFormOkButton_Click(object sender, EventArgs e)
         {
