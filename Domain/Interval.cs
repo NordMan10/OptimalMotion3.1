@@ -2,16 +2,25 @@
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Представление интервала времени
+    /// </summary>
     public class Interval
     {
         public Interval(int firstMoment, int lastMoment)
         {
-            FirstMoment = firstMoment;
-            LastMoment = lastMoment;
+            StartMoment = firstMoment;
+            EndMoment = lastMoment;
         }
 
-        public int FirstMoment { get; }
-        public int LastMoment { get; }
+        /// <summary>
+        /// Начальный момент
+        /// </summary>
+        public int StartMoment { get; }
+        /// <summary>
+        /// Конечный момент
+        /// </summary>
+        public int EndMoment { get; }
 
         /// <summary>
         /// проверяет пересечение интервалов
@@ -20,12 +29,12 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         public bool IsIntervalsIntersects(Interval interval)
         {
-            return interval.LastMoment > FirstMoment && interval.FirstMoment < LastMoment;
+            return interval.EndMoment > StartMoment && interval.StartMoment < EndMoment;
         }
 
         public static Interval operator +(Interval firstSummand, Interval secondSummand)
         {
-            return new Interval(firstSummand.FirstMoment + secondSummand.FirstMoment, firstSummand.LastMoment + secondSummand.LastMoment);
+            return new Interval(firstSummand.StartMoment + secondSummand.StartMoment, firstSummand.EndMoment + secondSummand.EndMoment);
         }
 
         /// <summary>
@@ -34,12 +43,17 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         public int GetIntervalDuration()
         {
-            return LastMoment - FirstMoment;
+            return EndMoment - StartMoment;
         }
 
+        /// <summary>
+        /// Возвращает true, если переданным момент попадаем в данный интервал (включая границы), и false, если нет
+        /// </summary>
+        /// <param name="moment"></param>
+        /// <returns></returns>
         public bool IsMomentInInterval(int moment)
         {
-            return FirstMoment <= moment && LastMoment >= moment;
+            return StartMoment <= moment && EndMoment >= moment;
         }
     }
 }

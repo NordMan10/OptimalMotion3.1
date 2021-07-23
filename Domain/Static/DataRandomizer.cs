@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace OptimalMotion3._1.Domain.Static
 {
+    /// <summary>
+    /// Класс для рандомизации значений
+    /// </summary>
     public static class DataRandomizer
     {
         private static Random random = new Random();

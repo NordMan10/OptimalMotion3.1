@@ -2,6 +2,9 @@
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Представление объекта Строки Таблицы. Поля класса определяют столбцы
+    /// </summary>
     public class TableRow
     {
         public TableRow(string aircraftId, string plannedTakingOffMoment, string possibleTakingOffMoment, 

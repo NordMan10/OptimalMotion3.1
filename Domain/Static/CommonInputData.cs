@@ -2,6 +2,9 @@
 
 namespace OptimalMotion3._1.Domain.Static
 {
+    /// <summary>
+    /// Класс для общих входных данных
+    /// </summary>
     public static class CommonInputData
     {
         /// <summary>

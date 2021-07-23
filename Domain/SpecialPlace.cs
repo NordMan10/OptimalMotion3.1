@@ -4,6 +4,9 @@ using OptimalMotion3._1.Domain.Static;
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Представление Спец. площадки
+    /// </summary>
     public class SpecialPlace : IMassServiceZone
     {
         public SpecialPlace(int id)

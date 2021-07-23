@@ -3,6 +3,9 @@ using System.Windows.Forms;
 
 namespace OptimalMotion3._1
 {
+    /// <summary>
+    /// Окно ввода параметров
+    /// </summary>
     public partial class ParametersForm : Form
     {
         public ParametersForm()

@@ -11,6 +11,9 @@ using System.ComponentModel;
 
 namespace OptimalMotion3._1
 {
+    /// <summary>
+    /// Главная форма (окно) проекта
+    /// </summary>
     public partial class MainForm : Form
     {
         public MainForm()
@@ -36,9 +39,13 @@ namespace OptimalMotion3._1
 
         private Model model;
 
+        /// <summary>
+        /// Окно ввода параметров
+        /// </summary>
         private Form parametersForm;
         private ITable table;
 
+        // Объекты разметки для окон
         private TableLayoutPanel mainLayout;
         private TableLayoutPanel topLayout;
         private TableLayoutPanel inputDataTableLayout;
@@ -52,13 +59,17 @@ namespace OptimalMotion3._1
         private Button ParametersButton { get; set; }
         private Button ParametersFormOkButton { get; set; }
         private Button ResetButton { get; set; }
-        private Button AddDepurtureButton { get; set; }
 
         private void InitModel(int runwayCount, int specialPlaceCount)
         {
             model = new Model(runwayCount, specialPlaceCount, table);
         }
 
+
+        #region Initializations
+        /// <summary>
+        /// Инициализация Таблицы
+        /// </summary>
         private void InitTable()
         {
             tableDataGridView = new DataGridView();
@@ -73,22 +84,9 @@ namespace OptimalMotion3._1
             table = new Table(tableDataGridView);
         }
 
-        private void GraphicBaseOnDataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            foreach (var property in typeof(TableRow).GetProperties())
-            {
-                var displayNameAttribute = property.GetCustomAttribute(typeof(DisplayNameAttribute));
-                if (displayNameAttribute != null)
-                {
-                    var propDisplayName = (displayNameAttribute as DisplayNameAttribute).DisplayName;
-                    tableDataGridView.Columns[property.Name].HeaderText = propDisplayName;
-                }
-
-                tableDataGridView.Columns[property.Name].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                
-            }
-        }
-
+        /// <summary>
+        /// Инициализация окна ввода параметров
+        /// </summary>
         private void InitParametersForm()
         {
             parametersForm = new ParametersForm();
@@ -207,26 +205,7 @@ namespace OptimalMotion3._1
             }
         }
 
-        private void HandleRunwayCountInputValue(object sender, EventArgs e)
-        {
-            var input = dataTableItems["runwayCount"].Item2;
-            if (input.Text != "")
-                CommonInputData.RunwayCount = int.Parse(input.Text);
-        }
-
-        private void HandleSPCountInputValue(object sender, EventArgs e)
-        {
-            var input = dataTableItems["SPCount"].Item2;
-            if (input.Text != "")
-                CommonInputData.SpecialPlaceCount = int.Parse(input.Text);
-        }
-
-        private void HandleProcessingTimeInputValue(object sender, EventArgs e)
-        {
-            var input = dataTableItems["processingTime"].Item2;
-            if (input.Text != "")
-                ConstantTakingOffCreationIntervals.ProcessingTime = int.Parse(input.Text);
-        }
+        
 
         private void InitButtons()
         {
@@ -294,17 +273,29 @@ namespace OptimalMotion3._1
             ParametersFormOkButton.Click += ParametersFormOkButton_Click;
         }
 
-        private void InitAddDepurtureButton()
+        #endregion
+
+
+        #region EventHandlers
+
+        /// <summary>
+        /// Обработчик события Таблицы
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GraphicBaseOnDataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            AddDepurtureButton = new Button();
-            AddDepurtureButton.Text = "Добавить вылет";
+            foreach (var property in typeof(TableRow).GetProperties())
+            {
+                var displayNameAttribute = property.GetCustomAttribute(typeof(DisplayNameAttribute));
+                if (displayNameAttribute != null)
+                {
+                    var propDisplayName = (displayNameAttribute as DisplayNameAttribute).DisplayName;
+                    tableDataGridView.Columns[property.Name].HeaderText = propDisplayName;
+                }
 
-            AddDepurtureButton.Font = new Font("Roboto", 14f, FontStyle.Bold, GraphicsUnit.Pixel);
-            AddDepurtureButton.AutoSize = true;
-            AddDepurtureButton.BackColor = Color.White;
-            AddDepurtureButton.FlatStyle = FlatStyle.Flat;
-
-            AddDepurtureButton.Click += StartButtonOnClick;
+                tableDataGridView.Columns[property.Name].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            }
         }
 
         private void ParametersFormOkButton_Click(object sender, EventArgs e)
@@ -338,5 +329,28 @@ namespace OptimalMotion3._1
             model.ResetRunways();
             model.ResetSpecialPlaces();
         }
+
+        private void HandleRunwayCountInputValue(object sender, EventArgs e)
+        {
+            var input = dataTableItems["runwayCount"].Item2;
+            if (input.Text != "")
+                CommonInputData.RunwayCount = int.Parse(input.Text);
+        }
+
+        private void HandleSPCountInputValue(object sender, EventArgs e)
+        {
+            var input = dataTableItems["SPCount"].Item2;
+            if (input.Text != "")
+                CommonInputData.SpecialPlaceCount = int.Parse(input.Text);
+        }
+
+        private void HandleProcessingTimeInputValue(object sender, EventArgs e)
+        {
+            var input = dataTableItems["processingTime"].Item2;
+            if (input.Text != "")
+                ConstantTakingOffCreationIntervals.ProcessingTime = int.Parse(input.Text);
+        }
+
+        #endregion
     }
 }

@@ -1,7 +1,10 @@
 ﻿
 
-namespace OptimalMotion3._1.Domain.Static
+namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Набор входных данных, необходимый для каждого ВС
+    /// </summary>
     public class AircraftInputData
     {
         public AircraftInputData(string runwayId, int specialPlaceId, string type, int priority,

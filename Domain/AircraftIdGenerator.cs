@@ -2,6 +2,9 @@
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Класс для генерации уникальных Id для ВС. Синглтон
+    /// </summary>
     public class AircraftIdGenerator
     {
         protected AircraftIdGenerator(int id)
@@ -14,6 +17,11 @@ namespace OptimalMotion3._1.Domain
         private static int initIdValue;
         private int id;
 
+        /// <summary>
+        /// Возвращает экземпляр класса. Если экземпляр уже был создан, возвращает ссылку на него
+        /// </summary>
+        /// <param name="startIdValue"></param>
+        /// <returns></returns>
         public static AircraftIdGenerator GetInstance(int startIdValue)
         {
             initIdValue = startIdValue;

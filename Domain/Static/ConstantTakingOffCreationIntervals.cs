@@ -2,7 +2,10 @@
 
 namespace OptimalMotion3._1.Domain.Static
 {
-    public class ConstantTakingOffCreationIntervals
+    /// <summary>
+    /// Заданные средние значения интервалов для ВС (нужны временно, пока данные не будут передавать напрямую для каждого ВС)
+    /// </summary>
+    public static class ConstantTakingOffCreationIntervals
     {
         /// <summary>
         /// Время руления от парковки до ПРДВ

@@ -8,6 +8,9 @@ using OptimalMotion3._1.Interfaces;
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Представление ВПП
+    /// </summary>
     public class Runway : IMassServiceZone
     {
         public Runway(string id)

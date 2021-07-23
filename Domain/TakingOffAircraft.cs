@@ -8,6 +8,9 @@ using OptimalMotion3._1.Interfaces;
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Представление взлетающего ВС
+    /// </summary>
     public class TakingOffAircraft : IAircraft
     {
         public TakingOffAircraft(int id, string type, int priority, TakingOffAircraftCreationMoments creationMoments, 

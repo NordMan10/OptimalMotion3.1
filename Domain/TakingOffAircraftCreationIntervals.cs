@@ -2,6 +2,9 @@
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Интерваоы, получаемые во входных данных для взлетающего ВС
+    /// </summary>
     public class TakingOffAircraftCreationIntervals
     {
         public TakingOffAircraftCreationIntervals(
@@ -16,11 +19,34 @@ namespace OptimalMotion3._1.Domain
             Processing = processing;
         }
 
+        /// <summary>
+        /// Время руления от парковки до ПРДВ
+        /// </summary>
         public int MotionFromParkingToPS { get; }
+
+        /// <summary>
+        /// Время руления от ПРДВ до ИСП
+        /// </summary>
         public int MotionFromPSToES { get; }
-        public int TakingOff { get; }
-        public int Processing { get; }
+
+        /// <summary>
+        /// Время руления от парковки до Спец. площадки
+        /// </summary>
         public int MotionFromParkingToSP { get; }
+
+        /// <summary>
+        /// Время руления от Спец. площадки до ПРДВ
+        /// </summary>
         public int MotionFromSPToPS { get; }
+
+        /// <summary>
+        /// Время взлета
+        /// </summary>
+        public int TakingOff { get; }
+
+        /// <summary>
+        /// Время обработки
+        /// </summary>
+        public int Processing { get; set; }
     }
 }

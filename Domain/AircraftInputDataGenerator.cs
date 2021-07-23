@@ -5,17 +5,21 @@ using System.Collections.Generic;
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Класс для генерации входных данных для каждого ВС. Синглтон
+    /// </summary>
     public class AircraftInputDataGenerator
     {
-        protected AircraftInputDataGenerator()
-        {
-        }
+        protected AircraftInputDataGenerator() {}
 
         private readonly Random random = new Random();
         private static AircraftInputDataGenerator _instance;
         private static readonly object SyncRoot = new object();
 
-
+        /// <summary>
+        /// Возвращает экземпляр класса. Если экземпляр уже был создан, возвращает ссылку на него
+        /// </summary>
+        /// <returns></returns>
         public static AircraftInputDataGenerator GetInstance()
         {
             if (_instance == null)
@@ -50,7 +54,10 @@ namespace OptimalMotion3._1.Domain
             return new AircraftInputData(runwayId, specialPlaceId, aircraftType, priority, processingIsNeeded, creationIntervals, creationMoments);
         }
 
-
+        /// <summary>
+        /// Возвращает значение приритета для ВС с неравномерным распределением
+        /// </summary>
+        /// <returns></returns>
         private int GetAircraftPriority()
         {
             int priority;
@@ -66,12 +73,21 @@ namespace OptimalMotion3._1.Domain
             return priority;
         }
 
+        /// <summary>
+        /// Возвращает флаг необходимости обработки, генерируемы случайным образом
+        /// </summary>
+        /// <returns></returns>
         private bool GetProcessingNecessity()
         {
             var processingIsNeededVariants = new List<bool> { true, false };
             return processingIsNeededVariants[random.Next(0, processingIsNeededVariants.Count)];
         }
 
+        /// <summary>
+        /// Возвращает экземпляр класса заданных интервалов для ВС (нужен, пока данные для каждого ВС не будут передаваться напрямую).
+        /// Значения интервалов задаются с некоторым разбросом от среднего значения
+        /// </summary>
+        /// <returns></returns>
         private TakingOffAircraftCreationIntervals GetTakingOffAircraftCreationIntervals()
         {
             var motionFromParkingToPS = DataRandomizer.GetRandomizedValue(ConstantTakingOffCreationIntervals.MotionFromParkingToPS, 25, 15);

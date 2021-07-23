@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace OptimalMotion3._1.Interfaces
 {
+    /// <summary>
+    /// Интерфейс объекта Таблицы
+    /// </summary>
     public interface ITable
     {
         void AddRow(TableRow tableData);

@@ -3,6 +3,9 @@ using System;
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Класс для генерации ВС. Синглтон
+    /// </summary>
     public class AircraftGenerator
     {
         protected AircraftGenerator(AircraftIdGenerator idGenerator)
@@ -11,11 +14,14 @@ namespace OptimalMotion3._1.Domain
         }
 
         private readonly AircraftIdGenerator idGenerator;
-        private readonly Random random = new Random();
         private static AircraftGenerator _instance;
         private static readonly object SyncRoot = new object();
 
-
+        /// <summary>
+        /// Возвращает экземпляр класса. Если экземпляр уже был создан, возвращает ссылку на него
+        /// </summary>
+        /// <param name="idGenerator"></param>
+        /// <returns></returns>
         public static AircraftGenerator GetInstance(AircraftIdGenerator idGenerator)
         {
             if (_instance == null)

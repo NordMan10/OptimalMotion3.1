@@ -4,6 +4,9 @@ using OptimalMotion3._1.Domain.Static;
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Представление предварительного старта
+    /// </summary>
     public class PreliminaryStart : IMassServiceZone
     {
         public PreliminaryStart(int id)

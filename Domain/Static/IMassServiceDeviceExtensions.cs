@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace OptimalMotion3._1.Domain.Static
 {
+    /// <summary>
+    /// Класс, содержащий реализацию общих методов для интерфейса зоны массового обслуживания (IMassServiceZone). 
+    /// Описание данного объекта см. в определении интерфейса IMassServiceZone
     public static class IMassServiceDeviceExtensions
     {
         /// <summary>
@@ -31,13 +34,13 @@ namespace OptimalMotion3._1.Domain.Static
         /// <returns></returns>
         public static Interval GetFreeInterval(this IMassServiceZone zone, Interval interval, Dictionary<int, Interval> zoneIntervals)
         {
-            var newInterval = new Interval(interval.FirstMoment, interval.LastMoment);
+            var newInterval = new Interval(interval.StartMoment, interval.EndMoment);
             foreach (var occupiedInterval in zoneIntervals.Values)
             {
-                if (newInterval.LastMoment >= occupiedInterval.FirstMoment && newInterval.FirstMoment <= occupiedInterval.LastMoment)
+                if (newInterval.EndMoment >= occupiedInterval.StartMoment && newInterval.StartMoment <= occupiedInterval.EndMoment)
                 {
-                    var delay = occupiedInterval.LastMoment - interval.FirstMoment;
-                    newInterval = new Interval(interval.FirstMoment + delay, interval.LastMoment + delay);
+                    var delay = occupiedInterval.EndMoment - interval.StartMoment;
+                    newInterval = new Interval(interval.StartMoment + delay, interval.EndMoment + delay);
                 }
             }
 

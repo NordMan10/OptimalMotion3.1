@@ -1,5 +1,4 @@
-﻿using OptimalMotion3._1.Domain.Enums;
-using OptimalMotion3._1.Domain.Static;
+﻿using OptimalMotion3._1.Domain.Static;
 using OptimalMotion3._1.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -61,12 +60,14 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         private List<TakingOffAircraft> GetOrderedConfiguredTakingOffAircrafts(List<int> plannedTakingOffMoments)
         {
+            // Создаем список ВС
             var takingOffAircrafts= new List<TakingOffAircraft>();
+            // Упорядочиваем переданный список плановых моментов
             var orderedPlannedTakingOffMoments = plannedTakingOffMoments.OrderBy(m => m).ToList();
 
             var startDelay = 0;
-            //var startMomentsData = new Dictionary<TakingOffAircraft, int>();
 
+            // Берем каждый плановый момент
             for (var i = 0; i < orderedPlannedTakingOffMoments.Count; i++)
             {
                 // Генерируем входные данные для нового ВС
@@ -89,16 +90,16 @@ namespace OptimalMotion3._1.Domain
                     startDelay += GetSpecialPlaceStartDelay(takingOffAircraft, takingOffInterval);
 
                     // Рассчитываем и задаем момент старта при необходимости обработки
-                    var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES -
+                    var SPArriveMoment = takingOffInterval.StartMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES -
                         takingOffAircraft.CreationIntervals.MotionFromSPToPS - takingOffAircraft.CreationIntervals.Processing;
 
-                    startMoment = SPArriveMoment - takingOffAircraft.CreationIntervals.MotionFromParkingToSP + startDelay - CommonInputData.SpareArrivalTimeInterval.LastMoment;
+                    startMoment = SPArriveMoment - takingOffAircraft.CreationIntervals.MotionFromParkingToSP + startDelay - CommonInputData.SpareArrivalTimeInterval.EndMoment;
                 }
                 else
                 {
                     // Рассчитываем и задаем момент старта при отсутствии необходимости обработки
-                    startMoment = takingOffInterval.FirstMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES - takingOffAircraft.CreationIntervals.MotionFromParkingToPS +
-                        startDelay - CommonInputData.SpareArrivalTimeInterval.LastMoment;
+                    startMoment = takingOffInterval.StartMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES - takingOffAircraft.CreationIntervals.MotionFromParkingToPS +
+                        startDelay - CommonInputData.SpareArrivalTimeInterval.EndMoment;
                 }
 
                 // Задаем рассчитанный момент старта текущему ВС
@@ -106,35 +107,15 @@ namespace OptimalMotion3._1.Domain
                 // Рассчитываем и задаем возможный момент взлета
                 takingOffAircraft.CalculatingMoments.PossibleTakingOff = takingOffAircraft.CreationMoments.PlannedTakingOff + startDelay;
 
-                //startMomentsData.Add(takingOffAircraft, takingOffAircraft.CreationMoments.PlannedTakingOff);
-
                 takingOffAircrafts.Add(takingOffAircraft);
             }
 
-
+            // Упорядочиваем ВС по возможному моменту
             var orderedTakingOffAircrafts = takingOffAircrafts.OrderBy(a => a.CalculatingMoments.PossibleTakingOff).ToList();
+
+            // Возвращаем упорядоченный список ВС
             return orderedTakingOffAircrafts;
         }
-
-        //private void SetStartMomentsByTakingOffMoments(Dictionary<TakingOffAircraft, int> aircraftsAndTakingOffMoments, int totalDelay)
-        //{
-        //    foreach (var item in aircraftsAndTakingOffMoments)
-        //    {
-        //        var aircraft = item.Key;
-        //        var takingOffMoment = item.Value;
-
-        //        //var temp = takingOffMoment - aircraft.CreationIntervals.TakingOff -
-        //        //    aircraft.CreationIntervals.MotionFromPSToES + totalDelay;
-
-        //        if (aircraft.ProcessingIsNeeded)
-        //            aircraft.CalculatingMoments.Start = takingOffMoment - aircraft.CreationIntervals.TakingOff -
-        //            aircraft.CreationIntervals.MotionFromPSToES - aircraft.CreationIntervals.MotionFromSPToPS - aircraft.CreationIntervals.Processing -
-        //                aircraft.CreationIntervals.MotionFromParkingToSP + totalDelay;
-        //        else
-        //            aircraft.CalculatingMoments.Start = takingOffMoment - aircraft.CreationIntervals.TakingOff -
-        //            aircraft.CreationIntervals.MotionFromPSToES - aircraft.CreationIntervals.MotionFromParkingToPS + totalDelay;
-        //    }
-        //}
 
         /// <summary>
         /// Возвращает задержку момента старта от ВПП
@@ -152,7 +133,7 @@ namespace OptimalMotion3._1.Domain
             thisRunway.AddAircraftInterval(takingOffAircraft.Id, freeRunwayInterval);
 
             // Рассчитываем и возвращаем задержку
-            return freeRunwayInterval.FirstMoment - takingOffInterval.FirstMoment;
+            return freeRunwayInterval.StartMoment - takingOffInterval.StartMoment;
         }
 
         /// <summary>
@@ -165,7 +146,7 @@ namespace OptimalMotion3._1.Domain
         {
             var thisSpecialPlace = SpecialPlaces.Find(sp => sp.Id == takingOffAircraft.SpecialPlaceId);
 
-            var SPArriveMoment = takingOffInterval.FirstMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES -
+            var SPArriveMoment = takingOffInterval.StartMoment - takingOffAircraft.CreationIntervals.MotionFromPSToES -
                 takingOffAircraft.CreationIntervals.MotionFromSPToPS - takingOffAircraft.CreationIntervals.Processing;
 
             var processingInterval = new Interval(SPArriveMoment, SPArriveMoment + takingOffAircraft.CreationIntervals.Processing);
@@ -173,7 +154,7 @@ namespace OptimalMotion3._1.Domain
 
             thisSpecialPlace.AddAircraftInterval(takingOffAircraft.Id, freeSPInterval);
 
-            return freeSPInterval.FirstMoment - processingInterval.FirstMoment;
+            return freeSPInterval.StartMoment - processingInterval.StartMoment;
         }
 
         /// <summary>
@@ -183,34 +164,45 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         private List<TakingOffAircraft> GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> takingOffAircrafts)
         {
+            // Создаем список использованных индексов
             var usedIndexes = new List<int>();
 
+            // Берем каждый ВС
             for (var i = 0; i < takingOffAircrafts.Count; i++)
             {
                 // Проверяем, использовался ли уже этот индекс ВС
                 if (usedIndexes.Contains(i))
+                    // Если да, то пропускаем его
                     continue;
 
                 // Получаем возможный момент ВС
                 var possibleMoment = takingOffAircrafts[i].CalculatingMoments.PossibleTakingOff;
 
-                // Получаем ближайший к возможному разрешенный момент
+                // Пытаемся получить ближайший к возможному моменту разрешенный момент
                 var nearestPermittedMoment = CommonInputData.InputTakingOffMoments.GetNearestPermittedMoment(possibleMoment);
+                // Проверяем 
                 if (nearestPermittedMoment == null)
                 {
+                    // Если получили null, значит разрешенный момент не найден
+                    // Отмечаем это соответствующим значением
                     takingOffAircrafts[i].CalculatingMoments.Start = -1;
                     takingOffAircrafts[i].CalculatingMoments.PermittedTakingOff = -1;
+                    // И пропускаем этот ВС
                     continue;
                 }
 
+                // Если же получили не null, то отмечаем, что это проверенный разрешенный момент
                 var verifiedPermittedMoment = (int)nearestPermittedMoment;
 
+                // Рассчитываем задержку для текущего ВС, возможный момент которого мы рассматриваем
                 var startDelay = verifiedPermittedMoment - possibleMoment;
+                // Рассчитываем момент старта для этого же ВС
                 var currentAircraftStartMoment = takingOffAircrafts[i].CalculatingMoments.Start + startDelay;
 
+                // Получаем список стартовых моментов для резервных ВС
                 var reserveAircraftStartMoments = GetReserveAircraftStartMoments(verifiedPermittedMoment, i, takingOffAircrafts);
 
-                // Создаем список моментов старта текущего и резервных ВС, связанных по индексу с конкретным ВС
+                // Создаем один общий список пар значений <индекс ВС : момент старта> для текущего и резервных ВС
                 var allAircraftsStartMomentData = new Dictionary<int, int> { { i, currentAircraftStartMoment } };
                 foreach (var item in reserveAircraftStartMoments)
                     allAircraftsStartMomentData.Add(item.Key, item.Value);
@@ -218,24 +210,37 @@ namespace OptimalMotion3._1.Domain
                 // Задаем моменты старта для текущего и резервных ВС
                 SetSPreparedStartMoments(allAircraftsStartMomentData, takingOffAircrafts);
 
+                // Получаем индекс ВС, имеющего наибольший приоритет (среди текущего и резервных ВС)
                 var mostPriorityAircraftIndex = GetMostPriorityAircraftIndex(allAircraftsStartMomentData, takingOffAircrafts);
 
+                // Берем каждую пару значений из созданного общего списка ВС
                 foreach (var dataItem in allAircraftsStartMomentData)
                 {
+                    // Задаем разрешенный момент
                     takingOffAircrafts[dataItem.Key].CalculatingMoments.PermittedTakingOff = verifiedPermittedMoment;
+                    // Сравниваем индекс ВС и индекс наиболее приритетного ВС
                     if (dataItem.Key != mostPriorityAircraftIndex)
                     {
+                        // Если данное ВС не является наиболее приоритетным => помечаем его как резервное
                         takingOffAircrafts[dataItem.Key].IsReserve = true;
+                        // Задаем резервный разрешенный момент (момент взлета, если это ВС останется резервным и не заменит главное ВС)
                         takingOffAircrafts[dataItem.Key].CalculatingMoments.ReservePermittedTakingOff = CommonInputData.InputTakingOffMoments.GetNextPermittedMoment();
                     }
 
+                    // Добавляем индекс текущего ВС в список использованных
                     usedIndexes.Add(dataItem.Key);
                 }
             }
 
+            // Возвращаем список ВС с назначенными резервными ВС
             return takingOffAircrafts;
         }
 
+        /// <summary>
+        /// Задает подготовленные стартовые моменты переданным ВС
+        /// </summary>
+        /// <param name="aircraftsStartMomentData"></param>
+        /// <param name="takingOffAircrafts"></param>
         private void SetSPreparedStartMoments(Dictionary<int, int> aircraftsStartMomentData, List<TakingOffAircraft> takingOffAircrafts)
         {
             foreach (var momentItem in aircraftsStartMomentData)
@@ -244,6 +249,12 @@ namespace OptimalMotion3._1.Domain
             }
         }
 
+        /// <summary>
+        /// Возвращает индекс ВС с наибольшим приоритетом из всех переданных ВС
+        /// </summary>
+        /// <param name="aircraftsStartMomentData"></param>
+        /// <param name="takingOffAircrafts"></param>
+        /// <returns></returns>
         private int GetMostPriorityAircraftIndex(Dictionary<int, int> aircraftsStartMomentData, List<TakingOffAircraft> takingOffAircrafts)
         {
             var mostPriorityAircraftIndex = aircraftsStartMomentData.First().Key;
@@ -256,10 +267,15 @@ namespace OptimalMotion3._1.Domain
             return mostPriorityAircraftIndex;
         }
 
+        /// <summary>
+        /// Возвращает время простоя ВС на ПРДВ (учитывает заданный интервал запасного времени прибытия и задержку у резервных ВС)
+        /// </summary>
+        /// <param name="takingOffAircrafts"></param>
         private void SetPSWaitingTime(List<TakingOffAircraft> takingOffAircrafts)
         {
             foreach (var aircraft in takingOffAircrafts)
             {
+                // Рассчитываем момент прибытия на ПРДВ
                 int arrivalToPSMoment;
                 if (aircraft.ProcessingIsNeeded)
                 {
@@ -268,9 +284,8 @@ namespace OptimalMotion3._1.Domain
                 }
                 else
                     arrivalToPSMoment = aircraft.CalculatingMoments.Start + aircraft.CreationIntervals.MotionFromParkingToPS;
-                
-                
 
+                // Рассчитываем время простоя
                 if (aircraft.IsReserve)
                     aircraft.CalculatingIntervals.PSDelay = aircraft.CalculatingMoments.ReservePermittedTakingOff - arrivalToPSMoment - aircraft.CreationIntervals.MotionFromPSToES - 
                         aircraft.CreationIntervals.TakingOff;
@@ -335,14 +350,12 @@ namespace OptimalMotion3._1.Domain
         private int GetReserveAircraftCount(int permittedMoment, int aircraftIndex, List<int> possibleTakingOffMoments)
         {
             var reserveAircraftCount = 0;
-            var permittedInterval = new Interval(permittedMoment - CommonInputData.SpareArrivalTimeInterval.FirstMoment,
-                    permittedMoment - CommonInputData.SpareArrivalTimeInterval.LastMoment);
 
             var index = 1;
             // Определяем максимально возможное количество резервных ВС.
             // Пока имеются возможные моменты и разрешенный момент входит в разрешенный страховочный интервал
             while (aircraftIndex + index < possibleTakingOffMoments.Count - 1 &&
-                permittedMoment - CommonInputData.SpareArrivalTimeInterval.FirstMoment >= possibleTakingOffMoments[aircraftIndex + index])
+                permittedMoment - CommonInputData.SpareArrivalTimeInterval.StartMoment >= possibleTakingOffMoments[aircraftIndex + index])
             {
                 // Увеличиваем количество резервных ВС
                 reserveAircraftCount++;
@@ -370,6 +383,7 @@ namespace OptimalMotion3._1.Domain
             }
             while (timeToLastTakingOffMoment > permittedTime);
 
+            // Возвращаем количество резервных ВС
             return reserveAircraftCount;
         }
 
@@ -401,9 +415,15 @@ namespace OptimalMotion3._1.Domain
                 tableRows.Add(GetTableRow(aircraft));
             }
 
+            // Возвращаем строки данных для таблицы
             return tableRows;
         }
 
+        /// <summary>
+        /// Возвращает строку данных для таблицы, заполняя рассчитанными данными
+        /// </summary>
+        /// <param name="aircraft"></param>
+        /// <returns></returns>
         private TableRow GetTableRow(TakingOffAircraft aircraft)
         {
             var aircraftTotalMotionTime = aircraft.CreationIntervals.TakingOff + aircraft.CreationIntervals.MotionFromPSToES;
@@ -418,7 +438,7 @@ namespace OptimalMotion3._1.Domain
 
             return new TableRow(aircraft.Id.ToString(), aircraft.CreationMoments.PlannedTakingOff.ToString(), aircraft.CalculatingMoments.PossibleTakingOff.ToString(),
                     permittedMoment, aircraft.CalculatingMoments.Start.ToString(), aircraftTotalMotionTime.ToString(), processingTime,
-                    aircraft.ProcessingIsNeeded, ((int)aircraft.Priority).ToString(), aircraft.IsReserve, aircraft.CalculatingIntervals.PSDelay.ToString(), 
+                    aircraft.ProcessingIsNeeded, (aircraft.Priority).ToString(), aircraft.IsReserve, aircraft.CalculatingIntervals.PSDelay.ToString(), 
                     aircraft.RunwayId.ToString(), specialPlaceId);
         }
 

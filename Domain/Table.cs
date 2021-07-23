@@ -5,6 +5,9 @@ using OptimalMotion3._1.Interfaces;
 
 namespace OptimalMotion3._1.Domain
 {
+    /// <summary>
+    /// Класс, представляющий объект Таблицы и предоставляющий интерфейс управления ею
+    /// </summary>
     public class Table : ITable
     {
         public Table(DataGridView graphicBase)
@@ -19,7 +22,7 @@ namespace OptimalMotion3._1.Domain
         private readonly BindingList<TableRow> data;
 
         /// <summary>
-        /// Добавление строки: (ИНТЕРФЕЙС) (И.1)
+        /// Добавление строки
         /// </summary>
         /// <param name="rowCreationData"></param>
         public void AddRow(TableRow tableRow)
@@ -28,41 +31,35 @@ namespace OptimalMotion3._1.Domain
         }
 
         /// <summary>
-        /// Удаление строки: (ИНТЕРФЕЙС) (И.2)
+        /// Удаление строки
         /// </summary>
         /// <param name="id"></param>
         public void RemoveRow(int id)
         {
-            // Принимаем Id {Строки таблицы};
-            var rowId = id;
+            // Получаем индекс строки таблицы в списке
+            var rowIndex = GetTableRowIndexById(id);
 
-            // Получаем индекс {Строки таблицы} в списке;
-            var rowIndex = GetTableRowIndexById(rowId);
-
-            // Удаляем строку из списка;
+            // Удаляем строку из списка
             data.RemoveAt(rowIndex);
         }
 
         /// <summary>
-        /// Изменение значения строки: (ИНТЕРФЕЙС) (И.4)
+        /// Изменение значения строки
         /// </summary>
         /// <param name="id"></param>
         /// <param name="newRow"></param>
         public void UpdateRow(int id, TableRow newRow)
         {
-            // Принимаем Id {Строки таблицы};
-            var rowId = id;
-
-            // Принимаем новую строку с новыми значениями;
+            // Принимаем новую строку с новыми значениями
             var updatedRow = newRow;
 
-            // Получаем индекс {Строки таблицы} в списке;
-            var rowIndex = GetTableRowIndexById(rowId);
+            // Получаем индекс строки таблицы в списке
+            var rowIndex = GetTableRowIndexById(id);
 
-            // Удаляем старую строку;
+            // Удаляем старую строку
             data.RemoveAt(rowIndex);
 
-            // Заменяем старую строку на новую;
+            // Заменяем старую строку на новую
             data.Insert(rowIndex, updatedRow);
         }
 
@@ -75,7 +72,7 @@ namespace OptimalMotion3._1.Domain
         }
 
         /// <summary>
-        /// Получить индекс строки по Id строки: (2)
+        /// Возвращает индекс строки по Id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
