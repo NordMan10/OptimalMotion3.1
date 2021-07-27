@@ -76,8 +76,11 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         public List<int> GetUnusedPlannedMoments()
         {
+            // Упорядочиваем разрешенные моменты
+            var orderedPlannedMoments = PlannedMoments.OrderBy(m => m).ToList();
+
             // Отбираем еще не использованные плановые моменты
-            var unusedMoments = PlannedMoments.Skip(lastPlannedTakingOffMomentIndex + 1).ToList();
+            var unusedMoments = orderedPlannedMoments.Skip(lastPlannedTakingOffMomentIndex + 1).ToList();
 
             // Увеличиваем индекс последнего использованного планового момента на количество
             // неиспользованных (потому что подразумевается, что раз их взяли, то они уже использованы)
@@ -92,7 +95,7 @@ namespace OptimalMotion3._1.Domain
             lastPlannedTakingOffMomentIndex = -1;
         }
 
-        public void ResetLastPermittedMomentIndex()
+        public void ResetLastPermittedTakingOffMomentIndex()
         {
             lastPermittedMomentIndex = -1;
         }

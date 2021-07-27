@@ -14,7 +14,7 @@ namespace OptimalMotion3._1.Domain
             InitSpecialPlaces(specialPlaceCount);
             this.table = table;
 
-            AddTakingOffAircrafts += AddTakingOffAircraftsHandler;
+            AddTakingOffAircraftsData += AddTakingOffAircraftsDataHandler;
         }
 
         public List<Runway> Runways { get; } = new List<Runway>();
@@ -26,16 +26,16 @@ namespace OptimalMotion3._1.Domain
         private readonly AircraftGenerator aircraftGenerator = AircraftGenerator.GetInstance(idGenerator);
         private readonly AircraftInputDataGenerator aircraftInputDataGenerator = AircraftInputDataGenerator.GetInstance();
 
-        public event Func<List<TableRow>> AddTakingOffAircrafts;
+        public event Func<List<TableRow>> AddTakingOffAircraftsData;
 
         
         /// <summary>
         /// Вызывает обработчик события добавления взлетающих ВС. Добавляет выходные данные в таблицу
         /// </summary>
-        public void InvokeAddTakingOffAircrafts()
+        public void FillTableByTakingOffAircraftsData()
         {
             // Вызываем обработчик и получаем данные для заполнения таблицы
-            var tableRows = AddTakingOffAircrafts?.Invoke();
+            var tableRows = AddTakingOffAircraftsData?.Invoke();
 
             // Заполняем таблицу
             foreach(var row in tableRows)
@@ -46,11 +46,11 @@ namespace OptimalMotion3._1.Domain
         /// Обработчик события добавления взлетающих ВС
         /// </summary>
         /// <returns></returns>
-        private List<TableRow> AddTakingOffAircraftsHandler()
+        private List<TableRow> AddTakingOffAircraftsDataHandler()
         {
-            // Получаем копию списка плановых моментов
-            var plannedAircraftTakingOffMoments = CommonInputData.InputTakingOffMoments.PlannedMoments.ToList();
-            return GetOutputData(plannedAircraftTakingOffMoments);
+            // Получаем еще не использованные плановые моменты
+            var unusedPlannedTakingOffMoments = CommonInputData.InputTakingOffMoments.GetUnusedPlannedMoments();
+            return GetOutputData(unusedPlannedTakingOffMoments);
         }
 
         /// <summary>
@@ -160,23 +160,25 @@ namespace OptimalMotion3._1.Domain
         /// <summary>
         /// Возвращает список ВС с заданными резервными ВС
         /// </summary>
-        /// <param name="takingOffAircrafts"></param>
+        /// <param name="orderedTakingOffAircrafts"></param>
         /// <returns></returns>
-        private List<TakingOffAircraft> GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> takingOffAircrafts)
+        private List<TakingOffAircraft> GetReconfiguredAircraftsWithReserve(List<TakingOffAircraft> orderedTakingOffAircrafts)
         {
             // Создаем список использованных индексов
             var usedIndexes = new List<int>();
 
             // Берем каждый ВС
-            for (var i = 0; i < takingOffAircrafts.Count; i++)
+            for (var i = 0; i < orderedTakingOffAircrafts.Count; i++)
             {
                 // Проверяем, использовался ли уже этот индекс ВС
                 if (usedIndexes.Contains(i))
                     // Если да, то пропускаем его
                     continue;
 
+                // Если нет, то:
+
                 // Получаем возможный момент ВС
-                var possibleMoment = takingOffAircrafts[i].CalculatingMoments.PossibleTakingOff;
+                var possibleMoment = orderedTakingOffAircrafts[i].CalculatingMoments.PossibleTakingOff;
 
                 // Пытаемся получить ближайший к возможному моменту разрешенный момент
                 var nearestPermittedMoment = CommonInputData.InputTakingOffMoments.GetNearestPermittedMoment(possibleMoment);
@@ -185,9 +187,9 @@ namespace OptimalMotion3._1.Domain
                 {
                     // Если получили null, значит разрешенный момент не найден
                     // Отмечаем это соответствующим значением
-                    takingOffAircrafts[i].CalculatingMoments.Start = -1;
-                    takingOffAircrafts[i].CalculatingMoments.PermittedTakingOff = -1;
-                    // И пропускаем этот ВС
+                    orderedTakingOffAircrafts[i].CalculatingMoments.Start = -1;
+                    orderedTakingOffAircrafts[i].CalculatingMoments.PermittedTakingOff = -1;
+                    // И пропускаем это  ВС
                     continue;
                 }
 
@@ -197,10 +199,10 @@ namespace OptimalMotion3._1.Domain
                 // Рассчитываем задержку для текущего ВС, возможный момент которого мы рассматриваем
                 var startDelay = verifiedPermittedMoment - possibleMoment;
                 // Рассчитываем момент старта для этого же ВС
-                var currentAircraftStartMoment = takingOffAircrafts[i].CalculatingMoments.Start + startDelay;
+                var currentAircraftStartMoment = orderedTakingOffAircrafts[i].CalculatingMoments.Start + startDelay;
 
                 // Получаем список стартовых моментов для резервных ВС
-                var reserveAircraftStartMoments = GetReserveAircraftStartMoments(verifiedPermittedMoment, i, takingOffAircrafts);
+                var reserveAircraftStartMoments = GetReserveAircraftsStartMoments(verifiedPermittedMoment, i, orderedTakingOffAircrafts);
 
                 // Создаем один общий список пар значений <индекс ВС : момент старта> для текущего и резервных ВС
                 var allAircraftsStartMomentData = new Dictionary<int, int> { { i, currentAircraftStartMoment } };
@@ -208,23 +210,23 @@ namespace OptimalMotion3._1.Domain
                     allAircraftsStartMomentData.Add(item.Key, item.Value);
 
                 // Задаем моменты старта для текущего и резервных ВС
-                SetSPreparedStartMoments(allAircraftsStartMomentData, takingOffAircrafts);
+                SetSPreparedStartMoments(allAircraftsStartMomentData, orderedTakingOffAircrafts);
 
                 // Получаем индекс ВС, имеющего наибольший приоритет (среди текущего и резервных ВС)
-                var mostPriorityAircraftIndex = GetMostPriorityAircraftIndex(allAircraftsStartMomentData, takingOffAircrafts);
+                var mostPriorityAircraftIndex = GetMostPriorityAircraftIndex(allAircraftsStartMomentData, orderedTakingOffAircrafts);
 
                 // Берем каждую пару значений из созданного общего списка ВС
                 foreach (var dataItem in allAircraftsStartMomentData)
                 {
                     // Задаем разрешенный момент
-                    takingOffAircrafts[dataItem.Key].CalculatingMoments.PermittedTakingOff = verifiedPermittedMoment;
+                    orderedTakingOffAircrafts[dataItem.Key].CalculatingMoments.PermittedTakingOff = verifiedPermittedMoment;
                     // Сравниваем индекс ВС и индекс наиболее приритетного ВС
                     if (dataItem.Key != mostPriorityAircraftIndex)
                     {
                         // Если данное ВС не является наиболее приоритетным => помечаем его как резервное
-                        takingOffAircrafts[dataItem.Key].IsReserve = true;
+                        orderedTakingOffAircrafts[dataItem.Key].IsReserve = true;
                         // Задаем резервный разрешенный момент (момент взлета, если это ВС останется резервным и не заменит главное ВС)
-                        takingOffAircrafts[dataItem.Key].CalculatingMoments.ReservePermittedTakingOff = CommonInputData.InputTakingOffMoments.GetNextPermittedMoment();
+                        orderedTakingOffAircrafts[dataItem.Key].CalculatingMoments.ReservePermittedTakingOff = CommonInputData.InputTakingOffMoments.GetNextPermittedMoment();
                     }
 
                     // Добавляем индекс текущего ВС в список использованных
@@ -233,7 +235,7 @@ namespace OptimalMotion3._1.Domain
             }
 
             // Возвращаем список ВС с назначенными резервными ВС
-            return takingOffAircrafts;
+            return orderedTakingOffAircrafts;
         }
 
         /// <summary>
@@ -302,7 +304,7 @@ namespace OptimalMotion3._1.Domain
         /// <param name="aircraftIndex"></param>
         /// <param name="takingOffAircrafts"></param>
         /// <returns></returns>
-        private Dictionary<int, int> GetReserveAircraftStartMoments(int permittedMoment, int aircraftIndex, List<TakingOffAircraft> takingOffAircrafts)
+        private Dictionary<int, int> GetReserveAircraftsStartMoments(int permittedMoment, int aircraftIndex, List<TakingOffAircraft> takingOffAircrafts)
         {
             var reserveStartMoments = new Dictionary<int, int>();
 
@@ -388,19 +390,16 @@ namespace OptimalMotion3._1.Domain
         }
 
         /// <summary>
-        /// Возвращает данные для заполнения выходной таблицы в виде списка рядов
+        /// Возвращает данные в виде списка рядов для заполнения выходной таблицы
         /// </summary>
         /// <param name="plannedTakingOffMoments"></param>
         /// <returns></returns>
-        private List<TableRow> GetOutputData(List<int> plannedTakingOffMoments)
+        private List<TableRow> GetOutputData(List<int> unusedPlannedTakingOffMoments)
         {
             var tableRows = new List<TableRow>();
 
-            // Получаем еще не использованные плановые моменты
-            var rawPlannedTakingOffMoments = CommonInputData.InputTakingOffMoments.GetUnusedPlannedMoments();
-
             // Получаем список ВС с заданными возможными и стартовыми моментами, упорядоченный по возможным моментам
-            var orderedConfiguredTakingOffAircrafts = GetOrderedConfiguredTakingOffAircrafts(rawPlannedTakingOffMoments);
+            var orderedConfiguredTakingOffAircrafts = GetOrderedConfiguredTakingOffAircrafts(unusedPlannedTakingOffMoments);
             // Получаем список ВС с заданными резервными ВС
             var aircraftsWithReserve = GetReconfiguredAircraftsWithReserve(orderedConfiguredTakingOffAircrafts);
 
@@ -412,7 +411,8 @@ namespace OptimalMotion3._1.Domain
             // Добавляем данные о каждом ВС в таблицу
             foreach(var aircraft in aircraftsOrderedByPermittedMoments)
             {
-                tableRows.Add(GetTableRow(aircraft));
+                var tableRow = GetTableRow(aircraft);
+                tableRows.Add(tableRow);
             }
 
             // Возвращаем строки данных для таблицы

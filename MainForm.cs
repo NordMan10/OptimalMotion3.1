@@ -316,7 +316,7 @@ namespace OptimalMotion3._1
 
         private void StartButtonOnClick(object sender, EventArgs e)
         {
-            model.InvokeAddTakingOffAircrafts();
+            model.FillTableByTakingOffAircraftsData();
         }
 
         private void ResetButton_Click(object sender, EventArgs e)
@@ -324,7 +324,7 @@ namespace OptimalMotion3._1
             table.Reset();
 
             CommonInputData.InputTakingOffMoments.ResetLastPlannedTakingOffMomentIndex();
-            CommonInputData.InputTakingOffMoments.ResetLastPermittedMomentIndex();
+            CommonInputData.InputTakingOffMoments.ResetLastPermittedTakingOffMomentIndex();
 
             model.ResetRunways();
             model.ResetSpecialPlaces();
