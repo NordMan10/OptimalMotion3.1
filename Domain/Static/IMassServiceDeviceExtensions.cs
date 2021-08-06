@@ -6,7 +6,8 @@ namespace OptimalMotion3._1.Domain.Static
 {
     /// <summary>
     /// Класс, содержащий реализацию общих методов для интерфейса зоны массового обслуживания (IMassServiceZone). 
-    /// Описание данного объекта см. в определении интерфейса IMassServiceZone
+    /// Описание данного интерфейса см. в определении интерфейса IMassServiceZone
+    /// </summary>
     public static class IMassServiceDeviceExtensions
     {
         /// <summary>
@@ -51,7 +52,7 @@ namespace OptimalMotion3._1.Domain.Static
         /// Удаляет интервал из набора существующих интервалов по Id ВС
         /// </summary>
         /// <param name="zone">Зона массового обслуживания</param>
-        /// <param name="aircraftId">Id Вс</param>
+        /// <param name="aircraftId">Id ВС</param>
         /// <param name="zoneIntervals">Набор существующих интервалов</param>
         public static void RemoveAircraftInterval(this IMassServiceZone zone, int aircraftId, Dictionary<int, Interval> zoneIntervals)
         {

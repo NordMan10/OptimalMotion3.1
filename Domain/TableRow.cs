@@ -28,7 +28,7 @@ namespace OptimalMotion3._1.Domain
 
         [DisplayName("Id ВС")]
         public string AircraftId { get; }
-
+            
         [DisplayName("Тплан. взлет.")]
         public string PlannedTakingOffMoment { get; }
 

@@ -7,14 +7,15 @@ namespace OptimalMotion3._1.Domain
     /// </summary>
     public class AircraftIdGenerator
     {
-        protected AircraftIdGenerator(int id)
+        protected AircraftIdGenerator(int initIdValue)
         {
-            this.id = id;
+            id = initIdValue;
+            this.initIdValue = initIdValue;
         }
 
         private static AircraftIdGenerator instance;
         private static object syncRoot = new object();
-        private static int initIdValue;
+        private int initIdValue;
         private int id;
 
         /// <summary>
@@ -22,9 +23,8 @@ namespace OptimalMotion3._1.Domain
         /// </summary>
         /// <param name="startIdValue"></param>
         /// <returns></returns>
-        public static AircraftIdGenerator GetInstance(int startIdValue)
+        public static AircraftIdGenerator GetInstance(int initIdValue)
         {
-            initIdValue = startIdValue;
             if (instance == null)
             {
                 lock (syncRoot)

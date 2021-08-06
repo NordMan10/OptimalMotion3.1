@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace OptimalMotion3._1.Domain.Static
 {
     /// <summary>
-    /// Какие-либо константные значени, общие для всего проекта
+    /// Какие-либо константные значения, общие для всего проекта
     /// </summary>
     public static class ProgramConstants
     {

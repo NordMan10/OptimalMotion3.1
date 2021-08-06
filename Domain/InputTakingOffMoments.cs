@@ -11,8 +11,8 @@ namespace OptimalMotion3._1.Domain
     {
         public InputTakingOffMoments(List<int> plannedMoments, List<int> permittedMoments)
         {
-            PlannedMoments = plannedMoments;
-            PermittedMoments = permittedMoments;
+            OrderedPlannedMoments = plannedMoments.OrderBy(m => m).ToList();
+            OrderedPermittedMoments = permittedMoments.OrderBy(m => m).ToList();
         }
 
         /// <summary>
@@ -27,12 +27,12 @@ namespace OptimalMotion3._1.Domain
         /// <summary>
         /// Плановые моменты взлета
         /// </summary>
-        public List<int> PlannedMoments { get; }
+        public List<int> OrderedPlannedMoments { get; }
 
         /// <summary>
         /// Разрешенные моменты взлета
         /// </summary>
-        public List<int> PermittedMoments { get; }
+        public List<int> OrderedPermittedMoments { get; }
 
         /// <summary>
         /// Возвращает самый первый неиспользованный разрешенный момент взлета
@@ -40,7 +40,7 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         public int GetNextPermittedMoment()
         {
-            return PermittedMoments[++lastPermittedMomentIndex];
+            return OrderedPermittedMoments[++lastPermittedMomentIndex];
         }
 
         /// <summary>
@@ -51,22 +51,21 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         public int? GetNearestPermittedMoment(int possibleMoment)
         {
-            // Упорядочиваем разрешенные моменты
-            var orderedPermittedMoments = PermittedMoments.OrderBy(m => m).ToList();
             // Выбираем только те, что еще не были использованы
-            var permittedMoments = orderedPermittedMoments.Skip(lastPermittedMomentIndex + 1).ToList();
+            var permittedMoments = OrderedPermittedMoments.Skip(lastPermittedMomentIndex + 1).ToList();
 
             // Проверяем каждый разрешенный момент
             foreach (var permittedMoment in permittedMoments)
             {
-                // Если разрешенный момент больше или равен возможному + резервное время прибытия => возвращаем его
+                // Если разрешенный момент - страховочное время прибытия больше или равен возможному => возвращаем его
                 if (permittedMoment - CommonInputData.SpareArrivalTimeInterval.StartMoment >= possibleMoment)
                 {
-                    lastPermittedMomentIndex = orderedPermittedMoments.IndexOf(permittedMoment);
+                    lastPermittedMomentIndex = OrderedPermittedMoments.IndexOf(permittedMoment);
                     return permittedMoment;
                 }
             }
 
+            // Если такого момента не нашлось => возвращаем null
             return null;
         }
 
@@ -76,8 +75,8 @@ namespace OptimalMotion3._1.Domain
         /// <returns></returns>
         public List<int> GetUnusedPlannedMoments()
         {
-            // Упорядочиваем разрешенные моменты
-            var orderedPlannedMoments = PlannedMoments.OrderBy(m => m).ToList();
+            // Упорядочиваем плановые моменты
+            var orderedPlannedMoments = OrderedPlannedMoments.OrderBy(m => m).ToList();
 
             // Отбираем еще не использованные плановые моменты
             var unusedMoments = orderedPlannedMoments.Skip(lastPlannedTakingOffMomentIndex + 1).ToList();

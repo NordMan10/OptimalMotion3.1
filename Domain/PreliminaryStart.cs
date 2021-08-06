@@ -20,7 +20,7 @@ namespace OptimalMotion3._1.Domain
 
         public void AddAircraftInterval(int aircraftId, Interval freeInterval)
         {
-            IMassServiceDeviceExtensions.AddAircraftInterval(this, aircraftId, freeInterval, OccupiedIntervals);
+            IMassServiceDeviceExtensions.AddAircraftInterval(this, aircraftId, freeInterval, OccupiedIntervals);    
         }
 
         public Interval GetFreeInterval(Interval newInterval)

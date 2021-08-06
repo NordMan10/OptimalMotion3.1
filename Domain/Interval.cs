@@ -23,7 +23,7 @@ namespace OptimalMotion3._1.Domain
         public int EndMoment { get; }
 
         /// <summary>
-        /// проверяет пересечение интервалов
+        /// Проверяет пересечение интервалов
         /// </summary>
         /// <param name="interval"></param>
         /// <returns></returns>

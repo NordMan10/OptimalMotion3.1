@@ -74,7 +74,7 @@ namespace OptimalMotion3._1.Domain
         }
 
         /// <summary>
-        /// Возвращает флаг необходимости обработки, генерируемы случайным образом
+        /// Возвращает флаг необходимости обработки, генерируемый случайным образом
         /// </summary>
         /// <returns></returns>
         private bool GetProcessingNecessity()

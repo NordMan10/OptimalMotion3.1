@@ -8,12 +8,12 @@ namespace OptimalMotion3._1.Domain
     public class TakingOffAircraftCreationIntervals
     {
         public TakingOffAircraftCreationIntervals(
-            int motionFromParkingToPS, int motionFromPSToES, int takeoff,
+            int motionFromParkingToPS, int motionFromPSToES, int takingOff,
             int motionFromParkingToSP, int motionFromSPToPS, int processing)
         {
             MotionFromParkingToPS = motionFromParkingToPS;
             MotionFromPSToES = motionFromPSToES;
-            TakingOff = takeoff;
+            TakingOff = takingOff;
             MotionFromParkingToSP = motionFromParkingToSP;
             MotionFromSPToPS = motionFromSPToPS;
             Processing = processing;
